@@ -1,0 +1,356 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 1 - 08/03/2023 </p>
+			<div class="divider"></div>
+
+			<p>
+				The Robot Operating System (ROS) is a set of software libraries and tools that help you build robot applications.<br>
+				ROS offers a standard software platform to developers across industries that will carry them from research and prototyping all the way through to deployment and production.
+			</p>
+
+			<img class="centered" src="./imgs/lecture_1/ros_main.webp">
+
+			<p>
+				<p class="subsection"> Global Community </p>
+				For over 10+ years the ROS project has produced a vast ecosystem of software for robotics by nurturing a global community of millions of developers and users who contribute to and improve that software. ROS is developed by and for that community, who will be its stewards into the future.
+			</p>
+
+			<p>
+				<p class="subsection"> Proven in Use </p>
+				ROS is relied upon throughout the robotics industry. It’s the norm for teaching robotics. It’s the basis for most robotics research, from single-student projects to multi-institution collaborations and large-scale competitions. And it’s inside robots that are running in production all around the world today. In the autonomous mobile robot (AMR) alone, ROS has helped to create billions of dollars in value.
+			</p>
+
+			<p>
+				<p class="subsection"> Shorten Time to Market </p>
+				ROS provides the tools, libraries, and capabilities that you need to develop your robotics applications, allowing you to spend more time on the work that is important for your business. Because it is open-source, you have the flexibility to decide where and how to use ROS, as well as the freedom to customize it for your needs. Moreover, ROS isn’t exclusive, you don’t need to choose between ROS or some other software stack; ROS easily integrates with your existing software to bring its tools to your problem.
+			</p>
+
+			<p>
+				<p class="subsection"> Multi-domain </p>
+				ROS is ready for use across a wide array of robotics applications, from indoor to outdoor, home to automotive, underwater to space, and consumer to industrial.
+			</p>
+
+			<p>
+				<p class="subsection">Multi-platform </p>
+				ROS 2 is supported and tested on Linux, Windows, and macOS, as well as various embedded platforms (via micro-ROS), allowing seamless development and deployment of on-robot autonomy, back-end management, and user interfaces. The tiered support model allows for ports to new platforms, such as real-time and embedded operating systems, to be introduced and promoted as they gain interest and investment.
+			</p>
+
+			<p>
+				<p class="subsection"> 100% Open-source </p>
+				ROS is and always will be open-source, ensuring that our global community has free and unfettered access to a high-quality, best-in-class, fully featured robotics SDK. We build ROS atop other open source projects and we leverage and follow open standards (such as OMG’s DDS) wherever possible.
+			</p>
+
+			<p>
+				<p class="subsection"> Commercial Friendly </p>
+				While we earnestly encourage open source contributions to ROS from our user community, we never demand it. We distribute ROS under permissive open source licenses, with Apache 2.0 being our default. You’re welcome to modify ROS, mix it together with your own and others’ non-open software, and distribute the result in your proprietary product, and you don’t even need to tell us about it. Of course, we always enjoy hearing what our users are up to with ROS, so please do let us know if you’re able!
+			</p>
+
+			<p>
+				<p class="subsection"> Industry Support </p>
+				As demonstrated by the membership of the ROS 2 Technical Steering Committee, industry support for ROS 2 is strong. Companies large and small from around the world are committing their resources to making open source contributions to ROS 2, in addition to developing products on top.
+			</p>
+
+			<br><br>
+
+
+			<p class="section"> ROS Concepts </p>
+
+
+
+
+			<p>
+				<p class="subsection">Nodes</p>
+
+				<img class="centered" src="./imgs/lecture_1/nodes.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Topics</p>
+
+				<img class="centered" src="./imgs/lecture_1/topics_0.gif">
+				<img class="centered" src="./imgs/lecture_1/topics_1.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Services</p>
+
+				<img class="centered" src="./imgs/lecture_1/services_0.gif">
+				<img class="centered" src="./imgs/lecture_1/services_1.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Parameters</p>
+			</p>
+
+			<p>
+				<p class="subsection">Actions</p>
+				<img class="centered" src="./imgs/lecture_1/actions.gif">
+				<br><br><br>
+			</p>
+
+		
+			<p class="section">Seeing everything in Action - TurtleSim</p>
+
+			<p>
+				In this second part, we will see every concept just discussed applied to an ad-hoc example given by ROS: TurtleSim.<br>
+				It consists of a simple ROS project with nodes and topics ready to be used and get some conecpts with the structure of a ROS project.
+			</p>
+
+			<p>
+				First, let's install the code for TurtleSim.<br>
+				If you're using Ubuntu:
+				<p class="code">
+					sudo apt update <br><br>
+
+					sudo apt install ros-humble-turtlesim
+				</p>
+
+				Let's also install rqt and rqt_graph, some tools which will be useful to see the ROS Graph we discussed before, and to send data to ROS topics:
+				<p class="code">
+					sudo apt update<br><br>
+
+					sudo apt install ~nros-humble-rqt*
+				
+				</p>
+
+
+				
+			</p>
+
+			<p>
+				With everything installed, we are ready to run our simulation.<br><br>
+				First, let's source our ROS environment!
+
+				<p class="code">
+					source /opt/ros/humble/setup.bash
+				</p>
+
+				On MacOS:
+				<p class="code">
+					. ~/ros2_install/ros2-osx/setup.bash
+				</p>
+
+				This command is required on every new console we will open that we want to use to run any
+				ROS-related code. The reason why it is this way is so that multiple versions of ROS and projects
+				which have conflicting dependencies can cohexist on the same machine.<br>
+				If you wish to avoid writing this code every time you open the console (as we will be using only 
+				one version of ROS for the rest of this course), you can add the aforementioned code at the end of your 
+				~/.bashrc file. This will make the code run everytime a new console window is opened.
+			</p>
+
+			<p>
+				Now, we run our TurtleSim project.<br>
+				To do so, just type:
+
+				<p class="code">
+					ros2 run turtlesim turtlesim-node
+				</p>
+
+				This will start your turtlesim application! And you should have something that looks like this in a new window:
+				<img class="centered" src="imgs/lecture_1/turtlesim.png">
+
+				Without you knowing, spawning this simple node has already populated the ROS environment with multiple topics and services
+				ready to be used.<br>
+				Let's familiarize briefly with some ROS commands which will come back useful at any given time during your development with ROS.<br><br>
+				
+				First of all, from the console we can see all the running ROS nodes by typing:
+
+				<p class="code">
+					ros2 node list
+				</p>
+
+				HINT: rememeber that in this case, if you don't remember a given command, TAB is your best friend (I myself constatly forget some commands that I have to use),
+				so when in doubt, always TAB two times and see what the auto-complete suggests you.<br><br>
+
+				We should see only /turtlesim running.<br><br>
+
+				We can get further info of the turtlesim node by typing:
+
+				<p class="code">
+					ros2 node info /turtlesim
+				</p>
+
+				And this should give you something like this:
+
+				<img class="centered" src="imgs/lecture_1/node_info.png">
+
+				Let's stop for a little bit of time here and try to make sense of what we are seeing.<br><br>
+
+				First of all, we have a list of <strong>Subscribers</strong>: this is a list of topic which turtlesim is subscribed to,
+				this means that, if any other given node publishes a message to those topic, turtlesim will receive those messages.<br><br>
+				
+				Then we have a list of <strong>Publishers</strong>, this is a list of topics which turtlesim publishes data. Any external node can subscribe to 
+				those topics to get updates on the status of the application (i.e., /turtle1/pose for the current position of the turtle on the screen)<br><br>
+				
+				We then have a list of <strong>Services</strong> servers. This are all the services spawned by turtlesim, which can be used at any time by an external
+				node. As we have stated before, services are a more "structured" way of accessing data of a node, and, instead of a stream of current data,
+				always consist of a call by an external node, a particular behaviour from the receiving node, and a response after the service is executed.<br><br>
+				Finally, we have a single <strong>action</strong> at the end, which can be called to be executed.
+				
+				<br><br><br>
+
+				Let's give a more detailed look to a particular topic: /turtle1/cmd_vel.<br>
+				First of all, we can see all the list of current topics in our ROS environment by typing:
+
+				<p class="code">
+					ros2 topic list
+				</p>
+				Just like before for the nodes. Intuitivelly, you may have figured out that this command work for any ROS structure you want to list (i.e. action and service). It does.<br><br>
+				Now, if we want to publsh to this topic, how do we do that? Let's try to find out some more info about it.<br>
+				Let's type:
+
+				<p class="code">
+					ros2 topic info /turtle1/cmd_vel
+				</p>
+				
+				(Always remember that TAB is your best friend)<br><br>
+				This should output something like this:
+
+				<img class="centered" src="imgs/lecture_1/topic_info.png">
+				
+				This tells us how many nodes are subscribed to the topic, how many node are publishing to it, and finally, what we really want to know right now: the type
+				of message the topic accepts.<br>
+				If we want to publish something to /turtle1/cmd_vel, we will have to publish a message of the type
+				geometry_msgs/msg/Twist. Which is a message of type Twist of the package geometry_msgs.<br><br>
+
+				What is a Twist message precisely? Good question, let's find out!<br>
+				Just write:
+
+				<p class="code">
+					ros2 interface show geometry_msgs/msgs/Twist
+				</p>
+
+				And this will give all the information that you need to send a message to our cmd_vel topic.
+
+				<img class="centered" src="imgs/lecture_1/twist_info.png">
+
+				As we can see from the output, a Twist message is composed of two Vector3 values, called linear and angular.<br><br>
+
+				Now, let's try to send a Twist message to cmd_vel!<br><br>
+				
+				<!-- Let's try to do that briefly, and then we will come back to see what we just did.<br><br> -->
+				
+				<!-- Before that, let's open a new window and type:
+
+				<p class="code">
+					ros2 topic echo /turtle1/cmd_vel
+				</p>
+				This command will echo out every  -->
+
+				We can easily publish messages to a topic from the console by typing:
+
+				<p class="code">
+					ros2 topic pub [topic_name] [msg_type] '[args]'
+				</p>
+
+				So, for this case, let's say that we want to move the turtle, we can write:
+
+				<p class="code">
+					ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
+				</p>
+
+
+				Just remove the --once option, and you will have the turtle spinning in circle constantly.
+
+				<img class="centered" src="imgs/lecture_1/turtle_circle.png">
+
+				If you want to play around with your turtle a little bit more (the turtle needs some love afterall), you can spawn a new node called turtle_teleop_key,
+				which allows you to control the turtle by using your keyboard.<br><br>
+
+				Just write:
+
+				<p class="code">
+					ros2 run turtlesim turtle_teleop_key
+				</p>
+
+				And have "fun" using the arrowkeys and the other keys to move the turtle around.<br>
+				turtle_teleop_key is no exception to the ROS paradigm, and it sends messages to turtle1/cmd_vel exactly like we just did,
+				all that behaviour is just encapsulated into an ad-hoc publisher script. Which we will soon see how to write.<br><br>
+				If you want to find out that for yourself, feel free to take a look at the github source
+				<a href="https://github.com/ros/ros_tutorials/blob/74cc182dce2bb7d221052d1d45fe4ad0e7705843/turtlesim/tutorials/teleop_turtle_key.cpp">here</a>.<br>
+				If you are scared of looking at c++ code, don't worry, ROS also support Python scripting, and we will use that for a more agile approach.
+				<br><br><br>
+
+
+				Was that boring? Probably.<br><br>
+				The truth is that, moving a simulated and a physical drone which implements a ROS sdk is not so different from moving the turtle in our screen.<br>
+				This is why ROS is truly a powerfull tool.<br>
+				We will get there, eventually!<br><br><br>
+
+
+
+				<p class="section">The rqt Interface</p>
+
+				Before moving to more complex matters, there are some tools which can come in handy in the future.
+				
+				If you want to see a list of services and topics in a graphical interface, of easier use, you can write:
+
+				<p class="code">
+					rqt
+				</p>
+
+				And, by refreshing the application using the arrows on the top left, if your TurtleSim is still running, you should be able to see a list of topics and services that the 
+				TurtleSim application publishes.<br>
+				Feel free to play with some of the services (select one service, edit its parameters, and then clic call) to see
+				how they change something in the running application.<br><br>
+
+				Then, if you want to have a clearer view of your whole ROS workspace, you can run:
+
+				<p class="code">
+					rqt_graph
+				</p>
+
+				to see all the nodes, topics, services and actions currently available, all in a graphical graph-based structure.
+
+				<img class="centered" src="imgs/lecture_1/ros_graph.png">
+
+				Finally, if you want to see the list of logs of your ROS applicaton, you can run:
+
+				<p class="code">
+					ros2 run rqt_console rqt_console
+				</p>
+			
+				<br><br><br>
+			
+				If you want to experiment a little bit more, try to give your turtle a friend. You can do that by calling the service turtlesim/srv/Spawn<br>
+				Are you able to do that?<br>
+				You can do that both by console and by the rqt interface.<br>
+				We have not seen how to call a service by console, but you may be able to find out. Try it out!<br>
+
+			</p>
+
+
+			<p class="section">Creating your first ROS Application</p>
+
+			We have seen the paradigm behind a ROS project, but we have still no clue on how to start a project from scrap.<br>
+			The most attentious readers may have figured out (from what we said about the source command) that ROS works with different workspaces which contain everything you need to run your code, and they would be right.<br>
+			In fact, a ROS project is exactly another workspace to source below the ros2 dependencies, once you do that, running your ROS project is no different from running a new TurtleSim node.<br><br>
+
+			We will now see how we can build workspace and packages to organize our code, and then, how to write a simple publisher function.<br>
+			At the end of this part, you should be able to instruct your turtle to move in a particular way just by running your written code.<br><br>
+			Let's get started!<br><br>
+
+			<p class="subsection">Using colcon</p>
+
+			<p class="subsection">Creating a Package</p>
+
+			<p class="subsection">Writing your first script</p>
+			
+		<!--
+			If this part is hidden, it means that you got here before I did in the course. That is ok.
+			If you wish to go further on your own, feel free to do it!
+
+			Remember that the offical documentation of ROS2 Humble is even more detailed than this page,
+			so you may learn more from that if you do it at your own peace! Have fun!
+		-->
+
+		</div>
+	</body>
+</html>
