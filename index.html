@@ -57,7 +57,11 @@
 			<br><br> -->
 
 
-			<p class="section"> ROS Concepts - The ROS Graph</p>
+			<p class="section"> ROS Concepts - The ROS Graph 
+				<a href="./slides/lecture1_slides.pdf" download><button class="button" style="margin-top:3px;"">Download Slides</button></a>
+				<br><br>
+			</p>
+
 
 
 
@@ -151,7 +155,7 @@
 				To do so, just type:
 
 				<p class="code">
-					ros2 run turtlesim turtlesim-node
+					ros2 run turtlesim turtlesim_node
 				</p>
 
 				This will start your turtlesim application! And you should have something that looks like this in a new window:
@@ -233,7 +237,7 @@
 				Just write:
 
 				<p class="code">
-					ros2 interface show geometry_msgs/msgs/Twist
+					ros2 interface show geometry_msgs/msg/Twist
 				</p>
 
 				And this will give all the information that you need to send a message to our cmd_vel topic.
@@ -284,7 +288,8 @@
 				all that behaviour is just encapsulated into an ad-hoc publisher script. Which we will soon see how to write.<br><br>
 				If you want to find out that for yourself, feel free to take a look at the github source
 				<a href="https://github.com/ros/ros_tutorials/blob/74cc182dce2bb7d221052d1d45fe4ad0e7705843/turtlesim/tutorials/teleop_turtle_key.cpp">here</a>.<br>
-				If you are scared of looking at c++ code, don't worry, ROS also support Python scripting, and we will use that for a simpler approach.
+				If you are scared of looking at c++ code, don't worry, ROS also support Python scripting, and we will use that for a simpler approach.<br><br>
+
 				<br><br><br>
 
 
@@ -296,6 +301,78 @@
 
 				This is the GitHub page of the ROS SDK for some Tello drones. Does it ring a bell?<br>
 				We will get there, eventually!<br><br><br>
+
+
+				
+			<p class="section">Excercise 1 - Double turtles!</p>
+
+
+			<p>
+				This excercise is to test what we have seen so far in this lecture.<br>
+				You are requested to spawn two turtles <strong>in the same window</strong>.<br>
+				One turtle should be moving clockwise. The other one anti-clockwise.<br><br>
+
+				We have not seen how to call services, but they are really not that different from topics, the syntax for calling
+				a service is the following:
+
+				<p class="code">
+					ros2 service call [service_name] [msg_interface] [msg]
+				</p>
+
+				With this new knowledge, you should be able to complete the task assigned.<br>
+				Try to solve it on your own, and when you have done, you can come back and look at the solution.<br>
+				Good luck!
+			</p>
+
+
+			<input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+			<div class="spoiler">
+			<div>
+				<p>
+
+					Did you make it?<br><br>
+
+					The solution is kinda simple.<br>
+					The first thing to do, is to call the service <span class="snippet">/spawn</span> to spawn a second Turtle.<br>
+					You can do that by typing:
+
+					<p class="code">
+						ros2 service call /spawn turtlesim/srv/Spawn "{x: [x_coordinate], y: [y_coordinate], theta: [rotation]}"
+					</p>
+
+					This will spawn your second turtle on your screen, named turtle2 by default.<br>
+					Just list the topics again, and you should have your new <span class="snippet">/turtle2/cmd_vel</span> topic.<br>
+					This will be the topic we need to publish to, in order to move the second turtle.<br><br>
+
+					At this point, there is nothing new to do.<br>
+					Open two terminal windows and type, in each of them, the following commands:
+
+					<p class="code">
+						ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
+					</p>
+
+					For the first, and:
+
+					<p class="code">
+						ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: -1.8}}"
+					</p>
+
+					in the second terminal!<br><br>
+
+					Good job!<br><br>
+
+
+					Some have asked me how you can control the second turtle with the keyboard. All we need to do is start <span class="snippet">turtle_teleop_key</span>
+					and redirect the publishing topic to the second turtle, just like this:
+
+					<p class="code">
+						ros2 run turtlesim turtle_teleop_key /turtle1/cmd_vel:=/turtle2/cmd_vel
+					</p>
+
+				</p>
+			</div>
+			</div>
+
 
 
 
@@ -330,17 +407,34 @@
 					ros2 run rqt_console rqt_console
 				</p>
 			
-				<br><br><br>
+				<br><br>
+
+
+				This concludes (mostly) everything we have seen in the first lecture.<br>
+				In the next one, we will pick up from where we left and reintroduce <span class="snippet">colcon</span> from scratch!<br><br>
+
+				If there are still some typos around I may have missed, feel free to email me and I will fix them ASAP.<br>
+				See you soon!
 			
-				If you want to experiment a little bit more, try to give your turtle a friend. You can do that by calling the service <span class="snippet">turtlesim/srv/Spawn</span>.<br>
+				<!-- If you want to experiment a little bit more, try to give your turtle a friend. You can do that by calling the service <span class="snippet">turtlesim/srv/Spawn</span>.<br>
 				Can you do that?<br>
 				You should be able to do it both by console and by the rqt interface.<br>
-				We have not seen how to call a service by console, but you may be able to find out. Try it out!<br>
+				We have not seen how to call a service by console, but you may be able to find out. Try it out!<br> -->
 
 			</p>
 
 
-			<p class="section">Creating your first ROS Application</p>
+
+					<!--
+			If this part is hidden, it means that you got here before I did in the course. That is ok.
+			If you wish to go further on your own, feel free to do it!
+
+			Remember that the offical documentation of ROS2 Humble is even more detailed than this page,
+			so you may learn more from that if you do it at your own peace! Have fun!
+		-->
+
+
+			<!-- <p class="section">Creating your first ROS Application</p>
 
 			We have seen the paradigm behind a ROS project, but we have still no clue on how to start a project from scrap.<br>
 			The most attentious readers may have figured out (from what we said about the source command) that ROS works with different workspaces which contain everything you need to run your code, and they would be right.<br>
@@ -602,9 +696,10 @@
 					},
 				</p>
 
+			-->
 				<!-- In order for these new files to be found by ros2 run, we will need to , as we did not give any information
 				about the nodes this time when we created the package.<br>
-				 -->
+				
 				
 				Build the package again, just like we did it before.<br><br>
 
@@ -632,14 +727,9 @@
 				We will do the same for both services and actions, and then we will try to use our new knowledge to move the
 				Turtle in TurtleSim in a more structured way.
 			</p>
-
-		<!--
-			If this part is hidden, it means that you got here before I did in the course. That is ok.
-			If you wish to go further on your own, feel free to do it!
-
-			Remember that the offical documentation of ROS2 Humble is even more detailed than this page,
-			so you may learn more from that if you do it at your own peace! Have fun!
 		-->
+
+
 <!-- 
 			<p class="subsection">Using services</p>
 
