@@ -164,3 +164,20 @@ html {
 	background-size: cover;
 
   }
+
+
+  /* unvisited link */
+a:link {
+	color: rgb(119, 159, 218);
+  }
+  
+  /* visited link */
+  a:visited {
+	color: rgb(99, 139, 198);
+  }
+  
+  /* mouse over link */
+  a:hover {
+	color: rgb(129, 169, 228);
+  }
+  

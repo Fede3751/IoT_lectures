@@ -1,0 +1,871 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 1 - 15/03/2023 </p>
+			<div class="divider"></div>
+
+			<p>
+				The Robot Operating System (ROS) is a set of software libraries and tools that help you build robot applications.<br>
+				ROS offers a standard software platform to developers across industries that will carry them from research and prototyping all the way through to deployment and production.
+			</p>
+
+			<img class="centered" src="./imgs/lecture_1/ros_main.webp">
+
+			<!-- <p>
+				<p class="subsection"> Global Community </p>
+				For over 10+ years the ROS project has produced a vast ecosystem of software for robotics by nurturing a global community of millions of developers and users who contribute to and improve that software. ROS is developed by and for that community, who will be its stewards into the future.
+			</p>
+
+			<p>
+				<p class="subsection"> Proven in Use </p>
+				ROS is relied upon throughout the robotics industry. It’s the norm for teaching robotics. It’s the basis for most robotics research, from single-student projects to multi-institution collaborations and large-scale competitions. And it’s inside robots that are running in production all around the world today. In the autonomous mobile robot (AMR) alone, ROS has helped to create billions of dollars in value.
+			</p>
+
+			<p>
+				<p class="subsection"> Shorten Time to Market </p>
+				ROS provides the tools, libraries, and capabilities that you need to develop your robotics applications, allowing you to spend more time on the work that is important for your business. Because it is open-source, you have the flexibility to decide where and how to use ROS, as well as the freedom to customize it for your needs. Moreover, ROS isn’t exclusive, you don’t need to choose between ROS or some other software stack; ROS easily integrates with your existing software to bring its tools to your problem.
+			</p>
+
+			<p>
+				<p class="subsection"> Multi-domain </p>
+				ROS is ready for use across a wide array of robotics applications, from indoor to outdoor, home to automotive, underwater to space, and consumer to industrial.
+			</p>
+
+			<p>
+				<p class="subsection">Multi-platform </p>
+				ROS 2 is supported and tested on Linux, Windows, and macOS, as well as various embedded platforms (via micro-ROS), allowing seamless development and deployment of on-robot autonomy, back-end management, and user interfaces. The tiered support model allows for ports to new platforms, such as real-time and embedded operating systems, to be introduced and promoted as they gain interest and investment.
+			</p>
+
+			<p>
+				<p class="subsection"> 100% Open-source </p>
+				ROS is and always will be open-source, ensuring that our global community has free and unfettered access to a high-quality, best-in-class, fully featured robotics SDK. We build ROS atop other open source projects and we leverage and follow open standards (such as OMG’s DDS) wherever possible.
+			</p>
+
+			<p>
+				<p class="subsection"> Commercial Friendly </p>
+				While we earnestly encourage open source contributions to ROS from our user community, we never demand it. We distribute ROS under permissive open source licenses, with Apache 2.0 being our default. You’re welcome to modify ROS, mix it together with your own and others’ non-open software, and distribute the result in your proprietary product, and you don’t even need to tell us about it. Of course, we always enjoy hearing what our users are up to with ROS, so please do let us know if you’re able!
+			</p>
+
+			<p>
+				<p class="subsection"> Industry Support </p>
+				As demonstrated by the membership of the ROS 2 Technical Steering Committee, industry support for ROS 2 is strong. Companies large and small from around the world are committing their resources to making open source contributions to ROS 2, in addition to developing products on top.
+			</p>
+
+			<br><br> -->
+
+
+			<p class="section"> ROS Concepts - The ROS Graph 
+				<a href="./slides/lecture1_slides.pdf" download><button class="button" style="margin-top:3px;"">Download Slides</button></a>
+				<br><br>
+			</p>
+
+
+
+
+
+			<p>
+				<p class="subsection">Nodes</p>
+
+				<img class="centered" src="./imgs/lecture_1/nodes.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Topics</p>
+
+				<img class="centered" src="./imgs/lecture_1/topics_0.gif">
+				<img class="centered" src="./imgs/lecture_1/topics_1.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Services</p>
+
+				<img class="centered" src="./imgs/lecture_1/services_0.gif">
+				<img class="centered" src="./imgs/lecture_1/services_1.gif">
+				<br><br><br>
+			</p>
+
+			<p>
+				<p class="subsection">Parameters</p>
+				<img class="centered" src="imgs/lecture_1/parameters.jpg">
+			</p>
+
+			<p>
+				<p class="subsection">Actions</p>
+				<img class="centered" src="./imgs/lecture_1/actions.gif">
+				<br><br><br>
+			</p>
+
+		
+			<p class="section">Seeing everything in Action - TurtleSim</p>
+
+			<p>
+				In this second part, we will see every concept just discussed applied to an ad-hoc example given by ROS: TurtleSim.<br>
+				It consists of a simple ROS project with nodes and topics ready to be used, useful to learn some concepts of the structure of a ROS project.
+			</p>
+
+			<p>
+				First, let's install the code for TurtleSim.<br>
+				If you're using Ubuntu:
+				<p class="code">
+					sudo apt update <br><br>
+
+					sudo apt install ros-humble-turtlesim
+				</p>
+
+				Let's also install <span class="snippet">rqt</span> and <span class="snippet">rqt_graph</span>, some tools which will be useful to see the ROS Graph we discussed before, and to send data to ROS topics:
+				<p class="code">
+					sudo apt update<br><br>
+
+					sudo apt install ~nros-humble-rqt*
+				
+				</p>
+
+
+				
+			</p>
+
+			<p>
+				With everything installed, we are ready to run our simulation.<br><br>
+				First, let's source our ROS environment!
+
+				<p class="code">
+					source /opt/ros/humble/setup.bash
+				</p>
+
+				On MacOS:
+				<p class="code">
+					. ~/ros2_install/ros2-osx/setup.bash
+				</p>
+
+				This command is required on every new console we will open that we want to use to run any
+				ROS-related code. The reason why it is this way is so that multiple versions of ROS and projects
+				which have conflicting dependencies can cohexist on the same machine.<br>
+				If you wish to avoid writing this code every time you open the console (as we will be using only 
+				one version of ROS for the rest of this course), you can add the aforementioned code at the end of your 
+				<span class="snippet">~/.bashrc</span> file. This will make the code run everytime a new console window is opened.
+			</p>
+
+			<p>
+				Now, we run our TurtleSim project.<br>
+				To do so, just type:
+
+				<p class="code">
+					ros2 run turtlesim turtlesim_node
+				</p>
+
+				This will start your turtlesim application! And you should have something that looks like this in a new window:
+				<img class="centered" src="imgs/lecture_1/turtlesim.png">
+
+				Without you knowing, spawning this simple node has already populated the ROS environment with multiple topics and services
+				ready to be used.<br>
+				Let's familiarize briefly with some ROS commands which will come back useful at any given time during your development with ROS.<br><br>
+				
+				First of all, from the console we can see all the running ROS nodes by typing:
+
+				<p class="code">
+					ros2 node list
+				</p>
+
+				HINT: rememeber that in this case, if you don't remember a given command, TAB is your best friend (I myself constatly forget some commands that I have to use),
+				so when in doubt, always TAB two times and see what the auto-complete suggests you.<br><br>
+
+				We should see only <span class="snippet">/turtlesim</span> running.<br><br>
+
+				We can get further info of the turtlesim node by typing:
+
+				<p class="code">
+					ros2 node info /turtlesim
+				</p>
+
+				And this should give you something like this:
+
+				<img class="centered" src="imgs/lecture_1/node_info.png">
+
+				Let's stop for a little bit of time here and try to make sense of what we are seeing.<br><br>
+
+				First of all, we have a list of <strong>Subscribers</strong>: this is a list of topic which turtlesim is subscribed to,
+				this means that, if any other given node publishes a message to those topic, turtlesim will receive those messages.<br><br>
+				
+				Then we have a list of <strong>Publishers</strong>, this is a list of topics which turtlesim publishes data. Any external node can subscribe to 
+				those topics to get updates on the status of the application (i.e., /turtle1/pose for the current position of the turtle on the screen)<br><br>
+				
+				We then have a list of <strong>Services</strong> servers. This are all the services spawned by turtlesim, which can be used at any time by an external
+				node. As we have stated before, services are a more "structured" way of accessing data of a node, and, instead of a stream of continuous data,
+				always consist of a call by an external node, a particular behaviour from the receiving node, and a response after the service is executed.<br><br>
+				Finally, we have a single <strong>action</strong> at the end, which can be called to be executed.<br><br>
+
+				All the members displayed are reported with the type of message they take in input.
+				
+				<br><br><br>
+
+				Let's give a more detailed look to a particular topic: <span class="snippet">/turtle1/cmd_vel</span>.<br>
+				First of all, we can see all the list of current topics in our ROS environment by typing:
+
+				<p class="code">
+					ros2 topic list
+				</p>
+				Just like before for the nodes. Intuitivelly, you may have figured out that this command work for any ROS structure you want to list (i.e. action and service). It does.<br><br>
+				Now, if we want to publsh to this topic, how do we do that? Let's try to find out some more info about it.<br>
+				Let's type:
+
+				<p class="code">
+					ros2 topic info /turtle1/cmd_vel
+				</p>
+				
+				(Always remember that TAB is your best friend)<br><br>
+				This should output something like this:
+
+				<img class="centered" src="imgs/lecture_1/topic_info.png">
+				
+				This tells us how many nodes are subscribed to the topic, how many node are publishing to it, and finally, what we really want to know right now: the type
+				of message the topic accepts.<br><br>
+
+				This was something already known from before when we displayed the node info of <span class="snippet">turtlesim</span>,
+				but may have went unnoticed for some.<br>
+				We could have also found that out by adding the option <span class="snippet">-t</span> to our <span class="snippet">list</span> command, but we didn't.<br><br>
+
+
+				If we want to publish something to <span class="snippet">/turtle1/cmd_vel</span>, we will have to publish a message of the type
+				<span class="snippet">geometry_msgs/msg/Twist</span>. Which is a message of type Twist of the package geometry_msgs.<br><br>
+
+				What is a Twist message precisely? Good question, let's find out!<br>
+				Just write:
+
+				<p class="code">
+					ros2 interface show geometry_msgs/msg/Twist
+				</p>
+
+				And this will give all the information that you need to send a message to our cmd_vel topic.
+
+				<img class="centered" src="imgs/lecture_1/twist_info.png">
+
+				As we can see from the output, a Twist message is composed of two Vector3 values, called linear and angular.<br><br>
+
+				Now, let's try to send a Twist message to cmd_vel!<br><br>
+				
+				<!-- Let's try to do that briefly, and then we will come back to see what we just did.<br><br> -->
+				
+				<!-- Before that, let's open a new window and type:
+
+				<p class="code">
+					ros2 topic echo /turtle1/cmd_vel
+				</p>
+				This command will echo out every  -->
+
+				We can easily publish messages to a topic from the console by typing:
+
+				<p class="code">
+					ros2 topic pub [topic_name] [msg_type] '[args]'
+				</p>
+
+				So, for this case, let's say that we want to move the turtle, we can write:
+
+				<p class="code">
+					ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
+				</p>
+
+
+				Just remove the <span class="snippet">--once</span> option, and you will have the turtle spinning in circle constantly.
+
+				<img class="centered" src="imgs/lecture_1/turtle_circle.png">
+
+				If you want to play around with your turtle a little bit more (the turtle needs some love afterall), you can spawn a new node called <span class="snippet">turtle_teleop_key</span>,
+				which allows you to control the turtle by using your keyboard.<br><br>
+
+				Just write:
+
+				<p class="code">
+					ros2 run turtlesim turtle_teleop_key
+				</p>
+
+				And have "fun" using the arrowkeys and the other keys to move the turtle around.<br>
+				<span class="snippet">turtle_teleop_key</span> is no exception to the ROS paradigm, and it sends messages to <span class="snippet">turtle1/cmd_vel</span> exactly like we just did,
+				all that behaviour is just encapsulated into an ad-hoc publisher script. Which we will soon see how to write.<br><br>
+				If you want to find out that for yourself, feel free to take a look at the github source
+				<a href="https://github.com/ros/ros_tutorials/blob/74cc182dce2bb7d221052d1d45fe4ad0e7705843/turtlesim/tutorials/teleop_turtle_key.cpp">here</a>.<br>
+				If you are scared of looking at c++ code, don't worry, ROS also support Python scripting, and we will use that for a simpler approach.<br><br>
+
+				<br><br><br>
+
+
+				Was that boring? Probably.<br><br>
+				The truth is that, moving a simulated and a physical drone which implements a ROS sdk is not so different from moving the turtle in our screen.<br>
+				This is why ROS is truly a powerfull tool.<br>
+
+				<img class="centered" src="imgs/lecture_1/tello_sdk.png">
+
+				This is the GitHub page of the ROS SDK for some Tello drones. Does it ring a bell?<br>
+				We will get there, eventually!<br><br><br>
+
+
+				
+			<p class="section">Excercise 1 - Double turtles!</p>
+
+
+			<p>
+				This excercise is to test what we have seen so far in this lecture.<br>
+				You are requested to spawn two turtles <strong>in the same window</strong>.<br>
+				One turtle should be moving clockwise. The other one anti-clockwise.<br><br>
+
+				We have not seen how to call services, but they are really not that different from topics, the syntax for calling
+				a service is the following:
+
+				<p class="code">
+					ros2 service call [service_name] [msg_interface] [msg]
+				</p>
+
+				With this new knowledge, you should be able to complete the task assigned.<br>
+				Try to solve it on your own, and when you have done, you can come back and look at the solution.<br>
+				Good luck!
+			</p>
+
+
+			<input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+			<div class="spoiler">
+			<div>
+				<p>
+
+					Did you make it?<br><br>
+
+					The solution is kinda simple.<br>
+					The first thing to do, is to call the service <span class="snippet">/spawn</span> to spawn a second Turtle.<br>
+					You can do that by typing:
+
+					<p class="code">
+						ros2 service call /spawn turtlesim/srv/Spawn "{x: [x_coordinate], y: [y_coordinate], theta: [rotation]}"
+					</p>
+
+					This will spawn your second turtle on your screen, named turtle2 by default.<br>
+					Just list the topics again, and you should have your new <span class="snippet">/turtle2/cmd_vel</span> topic.<br>
+					This will be the topic we need to publish to, in order to move the second turtle.<br><br>
+
+					At this point, there is nothing new to do.<br>
+					Open two terminal windows and type, in each of them, the following commands:
+
+					<p class="code">
+						ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
+					</p>
+
+					For the first, and:
+
+					<p class="code">
+						ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: -1.8}}"
+					</p>
+
+					in the second terminal!<br><br>
+
+					Good job!<br><br>
+
+
+					Some have asked me how you can control the second turtle with the keyboard. All we need to do is start <span class="snippet">turtle_teleop_key</span>
+					and redirect the publishing topic to the second turtle, just like this:
+
+					<p class="code">
+						ros2 run turtlesim turtle_teleop_key /turtle1/cmd_vel:=/turtle2/cmd_vel
+					</p>
+
+				</p>
+			</div>
+			</div>
+
+
+			<p class="section">The rqt Interface</p>
+			<p>
+				Before moving to more complex matters, there are some tools which can come in handy in the future.
+				
+				If you want to see a list of services and topics in a graphical interface, of easier use, you can write:
+
+				<p class="code">
+					rqt
+				</p>
+
+				And, by refreshing the application using the arrows on the top left, if your TurtleSim is still running, you should be able to see a list of topics and services that the 
+				TurtleSim application publishes.<br>
+				Feel free to play with some of the services (select one service, edit its parameters, and then clic call) to see
+				how they change something in the running application.<br><br>
+
+				Then, if you want to have a clearer view of your whole ROS workspace, you can run:
+
+				<p class="code">
+					rqt_graph
+				</p>
+
+				to see all the nodes, topics, services and actions currently available, all in a graphical graph-based structure.
+
+				<img class="centered" src="imgs/lecture_1/ros_graph.png">
+
+				Finally, if you want to see the list of logs of your ROS applicaton, you can run:
+
+				<p class="code">
+					ros2 run rqt_console rqt_console
+				</p>
+			
+				<br><br>
+
+
+				This concludes (mostly) everything we have seen in the first lecture.<br>
+				In the next one, we will pick up from where we left and reintroduce <span class="snippet">colcon</span> from scratch!<br><br>
+
+				If there are still some typos around I may have missed, feel free to email me and I will fix them ASAP.<br>
+				See you soon!
+			
+				<!-- If you want to experiment a little bit more, try to give your turtle a friend. You can do that by calling the service <span class="snippet">turtlesim/srv/Spawn</span>.<br>
+				Can you do that?<br>
+				You should be able to do it both by console and by the rqt interface.<br>
+				We have not seen how to call a service by console, but you may be able to find out. Try it out!<br> -->
+
+			</p>
+
+
+
+					<!--
+			If this part is hidden, it means that you got here before I did in the course. That is ok.
+			If you wish to go further on your own, feel free to do it!
+
+			Remember that the offical documentation of ROS2 Humble is even more detailed than this page,
+			so you may learn more from that if you do it at your own peace! Have fun!
+		-->
+
+
+			<!-- <p class="section">Creating your first ROS Application</p>
+
+			We have seen the paradigm behind a ROS project, but we have still no clue on how to start a project from scrap.<br>
+			The most attentious readers may have figured out (from what we said about the source command) that ROS works with different workspaces which contain everything you need to run your code, and they would be right.<br>
+			In fact, a ROS project is exactly another workspace to source below the ros2 dependencies, once you do that, running your ROS project is no different from running a new TurtleSim node.<br><br>
+
+			We will now see how we can build workspace and packages to organize our code, and then, how to write a simple publisher function.<br>
+			At the end of this part, you should be able to instruct your turtle to move in a particular way just by running your written code.<br><br>
+			Let's get started!<br><br>
+
+			<p class="subsection">Using colcon</p>
+
+			<p>
+				In this part, we will be using the tool colcon to build our first ROS package.<br><br>
+
+				Let's start by creating a single folder of your choice for your workspace.<br>
+				Then create a folder named "src" inside of it.<br><br>
+
+				In this workspace, we are going to clone all the examples of ROS.<br>
+				Once you're in your "src" folder, just type:
+
+				<p class="code">
+					git clone https://github.com/ros/ros_tutorials.git -b humble-devel
+				</p>
+
+				This should have populated your "src" directory with all the source code of the examples.<br>
+				Before building, if you're using Ubuntu, you may have to check if you have all the dependencies to build your workspace. To do that, go back to the main folder of the workspace and type:
+				
+				<p class="code">
+					rosdep install -i --from-path src --rosdistro humble -y
+				</p>
+				
+				You can now build the examples by using the command:
+
+				<p class="code">
+					colcon build
+				</p>
+
+				And test if the build went fine with:
+
+				<p class="code">
+					colcon test
+				</p>
+
+				If everything went fine, you should now be ready to source your new workspace.<br>
+				The file to source a built workspace will be in the install directory. If you're still in your workspace directory, you can source either by running the local_setup.bash file:
+
+				<p class="code">
+					. install/local_setup.bash
+				</p>
+
+				Or just source the file just like you do for the ROS main dependencies, if you're using Ubuntu.<br><br>
+
+				If you now try to run your TurtleSim application, it will run from your sourced overlay, instead of the main ROS installation.<br>
+				If you want a confirmation of this, you can try to edit the name of the application Window. To do that, just edit the setWindowTitle function on line 52 of the file turtle_frame.cpp.
+
+			</p>
+
+			<p class="subsection">Creating a Package</p>
+
+			<p>
+				Most of the time in ROS, you will be working with different packages. A package can be considered a container for your ROS code, and is the ideal way of storing and sharing your code with others.<br>
+				Packages can be written either in Python or C++, and work together without any conflict.<br><br>
+				
+				A ROS workspace containing multiple packages would look something like this:
+
+				<p class="code">
+					workspace_folder/<br>
+					&emsp;&emsp;	src/<br>
+					&emsp;&emsp;&emsp;&emsp;	package_1/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		CMakeLists.txt<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	package_2/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		setup.py<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		resource/package_2<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	...<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	package_n/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		CMakeLists.txt<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml
+				</p>
+
+
+				Let's now build our first Python package.<br><br>
+				
+				In your "src" folder, you can build your Python package with the following syntax:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python [package_name]
+				</p>
+
+				For our first package, we will also create a simple node which will serve us as an introductionary example for writing our first node.<br>
+				To do that, we will use the following command:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python --node-name my_node my_package
+				</p>
+
+				Once you do that, you can build your package exactly like we've seen before.<br>
+				Go back to the main folder and type:
+
+				<p class="code">
+					colcon build
+				</p>
+
+				Now, if you source your package, you should be able to run your node with the command:
+
+				<p class="code">
+					ros2 run my_package my_node
+				</p>
+
+				Which should output something like this:
+
+				<img class="centered" src="imgs/lecture_2/first_package.png">
+
+				The source file for this message can be found here:
+
+				<p class="code">
+					src/my_package/my_package/my_node.py
+				</p>
+
+				With this. You have officialy created your first ROS node from scrap.<br>
+				Nice. Now I guess you would like to do something actually interesting with the node. Let's get to it!
+
+			</p>
+			<p class="section">Writing your first script</p>
+
+			<p class="subsection">Using Topics - Writing a Publisher and Subscriber Nodes</p>
+
+
+			<p>
+				In this part, we will write our first couple of publisher and subscriber nodes for a topic.<br>
+				Let's first create a package for our example:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python py_pubsub
+				</p>
+
+				Now, let's cheat a little bit.<br>
+				Instead of writing our publisher and subscriber from scratch and being lost for hours in order to understand the syntax, let's copy the code
+				of two simple publisher and subscriber from the ROS examples.<br><br>
+
+				Just navigate to <span class="snippet">src/py_pubsub/py_pubsub</span> and copy the examples from the ROS github with the following command:
+
+				<p class="code">
+					wget https://raw.githubusercontent.com/ros2/examples/humble/rclpy/topics/minimal_publisher/examples_rclpy_minimal_publisher/publisher_member_function.py<br><br>
+
+					wget https://raw.githubusercontent.com/ros2/examples/humble/rclpy/topics/minimal_subscriber/examples_rclpy_minimal_subscriber/subscriber_member_function.py
+
+				</p>
+
+				You should now have two files. One for the subscriber node, and one for the publisher one.<br>
+				Let's take a look at the code of these scripts, before running them.<br><br>
+
+				This is the code of the publisher:
+
+				<p class="code">
+					import rclpy<br>
+					from rclpy.node import Node<br><br>
+
+					from std_msgs.msg import String<br><br><br>
+
+
+					class MinimalPublisher(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_publisher')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_ = self.create_publisher(String, 'topic', 10)<br>
+					&emsp;&emsp;&emsp;&emsp;		timer_period = 0.5  # seconds<br>
+					&emsp;&emsp;&emsp;&emsp;		self.timer = self.create_timer(timer_period, self.timer_callback)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.i = 0<br><br>
+
+					&emsp;&emsp;	def timer_callback(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		msg = String()<br>
+					&emsp;&emsp;&emsp;&emsp;		msg.data = 'Hello World: %d' % self.i<br>
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_.publish(msg)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Publishing: "%s"' % msg.data)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.i += 1<br><br><br>
+
+
+					def main(args=None):<br>
+					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+
+					&emsp;&emsp;	minimal_publisher = MinimalPublisher()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_publisher)<br><br>
+
+					&emsp;&emsp;	# Destroy the node explicitly<br>
+					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
+					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
+					&emsp;&emsp;	minimal_publisher.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+
+				And this is the code of the subscriber:
+
+				<p class="code">
+					import rclpy<br>
+					from rclpy.node import Node<br><br>
+
+					from std_msgs.msg import String<br><br><br>
+
+
+					class MinimalSubscriber(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_subscriber')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.subscription = self.create_subscription(<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			String,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			'topic',<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.listener_callback,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			10)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.subscription  # prevent unused variable warning<br><br>
+
+					&emsp;&emsp;	def listener_callback(self, msg):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('I heard: "%s"' % msg.data)<br><br><br>
+
+
+					def main(args=None):<br>
+					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+
+					&emsp;&emsp;	minimal_subscriber = MinimalSubscriber()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_subscriber)<br><br>
+
+					&emsp;&emsp;	# Destroy the node explicitly<br>
+					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
+					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
+					&emsp;&emsp;	minimal_subscriber.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+				In order for these two nodes to be actually recognized by ros2, we will need to change some files (note that this
+				time, we didn't create the package with a node like before, so we manually need to input the new nodes).<br>
+				In order for files to be considered as nodes, we need to define entry points in the setup.py file of the package.<br>
+				You can get an idea of the syntax and how they are defined by looking back at the package which we created before
+				with the node.<br><br>
+				
+				Let's do the same for this new package.<br>
+				Open setup.py, and edit the line entry_points as follows:
+
+				<p class="code">
+					entry_points={<br>
+						&emsp;&emsp;	'console_scripts': [<br>
+						&emsp;&emsp;&emsp;&emsp;		'talker = py_pubsub.publisher_member_function:main',<br>
+						&emsp;&emsp;&emsp;&emsp;		'listener = py_pubsub.subscriber_member_function:main',<br>
+						&emsp;&emsp; ],<br>
+					},
+				</p>
+
+			-->
+				<!-- In order for these new files to be found by ros2 run, we will need to , as we did not give any information
+				about the nodes this time when we created the package.<br>
+				
+				
+				Build the package again, just like we did it before.<br><br>
+
+				Once you source your package, you should be able to run both the subscriber and the publisher, let's do it.<br>
+
+				<p class="code">
+					ros2 run py_pubsub talker
+				</p>
+
+				And in another console (after sourcing your package again):
+
+				<p class="code">
+					ros2 run py_pubsub listener
+				</p>
+
+				This should give you two nodes talking on the topic named "topic", using a string message.
+
+				<img class="centered" src="imgs/lecture_2/talker_listener.png">
+
+				
+				Great! We finally created our first two nodes which actually do something using the ROS paradigm.<br>
+				Now, let's take some time to look at the code that made this possible.<br>
+				This should give you a pretty good idea on how to write ROS nodes which use topics.<br><br>
+
+				We will do the same for both services and actions, and then we will try to use our new knowledge to move the
+				Turtle in TurtleSim in a more structured way.
+			</p>
+		-->
+
+
+<!-- 
+			<p class="subsection">Using services</p>
+
+			<p>
+				Let's try to write now a simple service and client for that service in Python.<br>
+				We will clone an example just like we did before. But this time from here.
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python py_srvcli --dependencies rclpy example_interfaces
+				</p>
+
+				This time, we are specifying a dependency that our application needs in order to run the service structure.<br><br>
+
+				Now create a new file in <span class="snippet">/src/py_srvcli/py_srvcli</span> called
+				<span class="snippet">service_member_function.py</span>, this will be the file were we will write our
+				service server.<br><br>
+
+				The code of the node is the following. While we copied our code before from the repository, it is suggested is to write
+				this example line by line this time. So that you can get a good idea of what is going on in the script.
+
+				<p class="code">
+					from example_interfaces.srv import AddTwoInts<br><br>
+
+					import rclpy<br>
+					from rclpy.node import Node<br>
+
+
+					class MinimalService(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_service')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.srv = self.create_service(AddTwoInts, 'add_two_ints', self.add_two_ints_callback)<br><br>
+
+					&emsp;&emsp;	def add_two_ints_callback(self, request, response):<br>
+					&emsp;&emsp;&emsp;&emsp;		response.sum = request.a + request.b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Incoming request\na: %d b: %d' % (request.a, request.b))<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;		return response<br><br>
+
+
+					def main():<br>
+					&emsp;&emsp;	rclpy.init()<br><br>
+
+					&emsp;&emsp;	minimal_service = MinimalService()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_service)<br><br>
+
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+
+				We now need to add an entry point for this service, just like we did before for the two talker and listener nodes.<br>
+				You should be able to do it by now.<br><br>
+
+				Let's now write the code for our client of the service.<br>
+				Create a file named <span class="snippet">client_member_function.py</span> in the <span class="snippet">src/py_srvcli/py_srvcli</span> folder, and write in it the following code:
+
+				<p class="code">
+
+					import sys<br><br>
+
+					from example_interfaces.srv import AddTwoInts<br>
+					import rclpy<br>
+					from rclpy.node import Node<br><br><br>
+
+
+					class MinimalClientAsync(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_client_async')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.cli = self.create_client(AddTwoInts, 'add_two_ints')<br>
+					&emsp;&emsp;&emsp;&emsp;		while not self.cli.wait_for_service(timeout_sec=1.0):<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.get_logger().info('service not available, waiting again...')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req = AddTwoInts.Request()<br><br>
+
+					&emsp;&emsp;	def send_request(self, a, b):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.a = a<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.b = b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.future = self.cli.call_async(self.req)<br>
+					&emsp;&emsp;&emsp;&emsp;		rclpy.spin_until_future_complete(self, self.future)<br>
+					&emsp;&emsp;&emsp;&emsp;		return self.future.result()<br><br><br>
+
+
+					def main():<br>
+					&emsp;&emsp;	rclpy.init()<br><br>
+
+					&emsp;&emsp;	minimal_client = MinimalClientAsync()<br>
+					&emsp;&emsp;	response = minimal_client.send_request(int(sys.argv[1]), int(sys.argv[2]))<br>
+					&emsp;&emsp;	minimal_client.get_logger().info(<br>
+					&emsp;&emsp;&emsp;&emsp;		'Result of add_two_ints: for %d + %d = %d' %<br>
+					&emsp;&emsp;&emsp;&emsp;		(int(sys.argv[1]), int(sys.argv[2]), response.sum))<br><br>
+
+					&emsp;&emsp;	minimal_client.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+
+				After doing it, add the entry point also for this second file, and we are now ready to test our example.<br>
+				Go back to the main folder and build the package again (remember that you may need to check the dependencies with <span class="snippet">rosdep</span> before being able to build).<br><br>
+
+				Now, after sourcing your package, you should be able to run your service with the following commands.<br>
+				First, start the service with:
+
+				<p class="code">
+					ros2 run py_srvcli service
+				</p>
+
+				And then make a request to it with the client node:
+
+				<p class="code">
+					ros2 run py_srvcli client 2 3
+				</p>
+
+				This should output something like this:
+
+				<img class="centered" src="imgs/lecture_2/service_client.png">
+
+
+				If you paid attention to the code carefully, you may have noticed that the code we are using is using a message type of
+				<span class="snippet">AddTwoInts</span>. In order to be able to confortably work with services, you may be 
+				required to be able to implement custom messages to pass to your services. This is what we are going to cover in the next part!
+
+
+				<p class="subsection">Creating your own Interfaces</p>
+			</p>
+			 -->
+
+
+			 <div class="to_be_continued"></div> 
+
+		</div>
+	</body>
+</html>
