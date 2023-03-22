@@ -1,0 +1,911 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 2 - 22/03/2023 </p>
+			<div class="divider"></div>
+
+			<p>
+				In this lecture, we will dig for the first time into writing code for a ROS project.<br>
+				We have previously seen how to interact directly with ROS nodes using the console, which allow us to 
+				interact in a simple way with our program. This can be really helpful when debugging (as it allows us to
+				interact with other nodes in the simplest way possible), but is not enough when we want to develop
+				more complex applications, and interact with different nodes simultaneously.<br><br>
+				
+				In this lecture, we will see how to interact first with topics, and then services.<br>
+				Some excercies are given to test your understanding of the new arguments.
+			</p>
+
+
+            <p class="section">Creating your first ROS Application</p>
+
+			<p>
+
+				Up until now, we have seen the paradigm behind a ROS project; however, we have still no clue on how to start a project from scrap.<br>
+				The most attentious readers may have figured out (from what we said about the source command in the first lecture) that ROS works with different workspaces which contain everything you need to run your code, and they would be right.<br>
+				In fact, a ROS project is exactly another workspace to source below the ros2 dependencies, once you do that, running your ROS project is no different from running a new TurtleSim node.<br><br>
+
+				We will now see how we can build workspace and packages to organize our code, and then, how to write a simple publisher function.<br>
+				At the end of this part, you should be able to instruct your turtle to move in a particular way just by running your written code.<br><br>
+				Let's get started!
+
+			</p>
+
+			<p class="subsection">Using colcon</p>
+
+			<p>
+				In this part, we will be using the tool colcon to build our first ROS package.<br><br>
+
+				Let's install it before.<br>
+				If you're using Ubuntu, just run:
+
+				<p class="code">
+					sudo apt install python3-colcon-common-extensions
+				</p>
+
+				While, on MacOS:
+
+				<p class="code">
+					python3 -m pip install colcon-common-extensions
+				</p>
+
+				With that done, we are ready to use colcon.<br><br>
+
+				Let's start by creating a single folder of your choice for your workspace.<br>
+				Then create a folder named <span class="snippet">src</span> inside of it.<br><br>
+
+				In this workspace, we are going to clone all the examples of ROS.<br>
+				Once you're in your <span class="snippet">src</span> folder, just type:
+
+				<p class="code">
+					git clone https://github.com/ros/ros_tutorials.git -b humble-devel
+				</p>
+
+				This should have populated your <span class="snippet">src</span> directory with all the source code of the examples.<br>
+				Before building, if you're using Ubuntu, you may have to check if you have all the dependencies to build your workspace. To do that, go back to the main folder of the workspace and type:
+				
+				<p class="code">
+					rosdep install -i --from-path src --rosdistro humble -y
+				</p>
+				
+				You can now build the examples by using the command:
+
+				<p class="code">
+					colcon build
+				</p>
+
+				And test if the build went fine with:
+
+				<p class="code">
+					colcon test
+				</p>
+
+				If everything went fine, you should now be ready to source your new workspace.<br>
+				The file to source a built workspace will be in the install directory. If you're still in your workspace directory, you can source either by running
+				the <span class="snippet">local_setup.bash</span> file:
+
+				<p class="code">
+					. install/local_setup.bash
+				</p>
+
+				or
+
+				<p class="code">
+					source ./install/local_setup.bash
+				</p>
+
+				Just like we did for the ROS main dependencies.<br><br>
+
+				If you now try to run your TurtleSim application, it will run from your sourced overlay, instead of the main ROS installation.<br>
+				If you want a confirmation of this, you can try to edit the name of the application Window. To do that, just edit the <span class="snippet">setWindowTitle</span>
+				function on line 52 of the file <span class="snippet">turtle_frame.cpp</span>.
+
+			</p>
+
+			<p class="subsection">Creating a Package</p>
+
+			<p>
+				Most of the time in ROS, you will be working with different packages. A package can be considered a container for your ROS code, and is the ideal way of storing and sharing your code with others.<br>
+				Packages can be written either in Python or C++, and work together without any conflict.<br><br>
+				
+				A ROS workspace containing multiple packages would look something like this:
+
+				<p class="code">
+					workspace_folder/<br>
+					&emsp;&emsp;	src/<br>
+					&emsp;&emsp;&emsp;&emsp;	package_1/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		CMakeLists.txt<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	package_2/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		setup.py<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		resource/package_2<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	...<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;	package_n/<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		CMakeLists.txt<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;		package.xml
+				</p>
+
+
+				Let's now build our first Python package.<br><br>
+				
+				In your <span class="snippet">src</span> folder, you can build your Python package with the following syntax:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python [package_name]
+				</p>
+
+				For our first package, we will also create a simple node which will serve us as an introductionary example for writing our first node.<br>
+				To do that, we will use the following command:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python --node-name my_node my_package
+				</p>
+
+				Once you do that, you can build your package exactly like we've seen before.<br>
+				Go back to the main folder and type:
+
+				<p class="code">
+					colcon build
+				</p>
+
+				Now, if you source your package, you should be able to run your node with the command:
+
+				<p class="code">
+					ros2 run my_package my_node
+				</p>
+
+				Which should output something like this:
+
+				<img class="centered" src="imgs/lecture_2/first_package.png">
+
+				The source file for this message can be found here:
+
+				<p class="code">
+					src/my_package/my_package/my_node.py
+				</p>
+
+				With this. You have officialy created your first ROS node from scrap.<br>
+				Nice. Now I guess you would like to do something actually interesting with the node. Let's get to it!
+
+			</p>
+			<p class="section">Writing your first script</p>
+
+			<p class="subsection">Using Topics - Writing a Publisher and Subscriber Nodes</p>
+
+
+			<p>
+				In this part, we will write our first couple of publisher and subscriber nodes for a topic.<br>
+				Let's first create a package for our example:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python py_pubsub
+				</p>
+
+				Now, let's cheat a little bit.<br>
+				Instead of writing our publisher and subscriber from scratch and being lost for hours in order to understand the syntax, let's copy the code
+				of two simple publisher and subscriber from the ROS examples.<br><br>
+
+				Just navigate to <span class="snippet">src/py_pubsub/py_pubsub</span> and copy the examples from the ROS github with the following command:
+
+				<p class="code">
+					wget https://raw.githubusercontent.com/ros2/examples/humble/rclpy/topics/minimal_subscriber/examples_rclpy_minimal_subscriber/subscriber_member_function.py<br><br>
+
+					wget https://raw.githubusercontent.com/ros2/examples/humble/rclpy/topics/minimal_publisher/examples_rclpy_minimal_publisher/publisher_member_function.py
+
+					
+				</p>
+
+				You should now have two files. One for the subscriber node, and one for the publisher one.<br>
+				Let's take a look at the code of these scripts, before running them.<br><br>
+
+				This is the code of the subscriber:
+
+				<p class="code">
+					import rclpy<br>
+					from rclpy.node import Node<br><br>
+
+					from std_msgs.msg import String<br><br><br>
+
+
+					class MinimalSubscriber(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_subscriber')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.subscription = self.create_subscription(<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			String,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			'topic',<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.listener_callback,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			10)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.subscription  # prevent unused variable warning<br><br>
+
+					&emsp;&emsp;	def listener_callback(self, msg):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('I heard: "%s"' % msg.data)<br><br><br>
+
+
+					def main(args=None):<br>
+					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+
+					&emsp;&emsp;	minimal_subscriber = MinimalSubscriber()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_subscriber)<br><br>
+
+					&emsp;&emsp;	# Destroy the node explicitly<br>
+					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
+					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
+					&emsp;&emsp;	minimal_subscriber.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+				Let's stop for some time here and try to make some sense of what we are seeing. It should be kinda intuitive how the script works,
+				but it may be wise to take some time to have a more detailed overview on what the script does.<br><br>
+
+				Let's start with the first lines:
+
+				<p class="code">
+					import rclpy<br>
+					from rclpy.node import Node
+				</p>
+
+				Here, we are importing the ROS Client Library for Python (rclpy).<br>
+				We are additionally importing separately the Node class, to keep namespaces shorter for the rest of the code.<br><br>
+
+				We then define a our node <span class="snippet">MinimalSubscriber</span>, and we do that by extending the <span class="snippet">Node</span> class.
+
+				<p class="code">
+					class MinimalSubscriber(Node):
+				</p>
+
+				Then we define its <span class="snippet">__init__()</span> method:
+
+				<p class="code">
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_subscriber')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.subscription = self.create_subscription(<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			String,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			'topic',<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.listener_callback,<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			10)<br>
+				</p>
+
+				Lots of things are happening here, let's look at each of them one at a time:<br><br>
+				
+				First of all, we call the parent <span class="snippet">__init__()</span> and pass it a name for the node.<br><br>
+
+				Then, we subscribe our node to a topic using the function <span class="snippet">create_subscription()</span>.<br><br>
+
+				The first argument of the function defines the type of message the topic takes. In this case, we are defining a subscriber
+				to a topic which takes in input messages of type <span class="snippet">String</span>.<br><br>
+
+				The name of the topic is given as the second arguent of the function. In this case, our topic is simply called "topic".<br><br>
+
+				Note that a topic is never "created" from scratch, we are just writing a subcriber for it.<br>
+				This means that, in the event of the topic not existing yet, we will create a new one with the given name. Otherwise the node will just subscribe
+				to an already existing topic.<br>
+				We will soon see that the same behaviour applies to publishers.<br><br>
+
+
+				We then define, with the third argument, a callback for the subscription, this is the function that will be executed when messages
+				are received by our subscriber.<br>
+				Here, we are calling the function <span class="snippet">self.listener_callback()</span>, which is later defined as follows:
+				
+				<p class="code">
+					&emsp;&emsp;	def listener_callback(self, msg):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('I heard: "%s"' % msg.data)
+				</p>
+
+				The function simply prints the message received using the ROS logger.<br><br>
+				
+				The last value is just the length of the queue for our subscriber, it means that if at a given time we have a 
+				queue of more than 10 published messages, additional messages will be dropped.<br><br>
+
+				We then define our main function, where all the logic of our node is instantiated and executed, let's see how we do that:
+
+				<p class="code">
+					&emsp;&emsp;	rclpy.init(args=args)
+				</p>
+
+				with this, we are starting our ROS client libraries, and passing them arguments given in input (we don't use them at this time).<br><br>
+
+				We then create our node and store it in new variable:
+
+				<p class="code">
+					&emsp;&emsp;	minimal_publisher = MinimalPublisher()
+				</p>
+
+				And then call the function <span class="snippet">rclpy.spin()</span> and pass the node to execute our node:
+
+				<p class="code">
+					&emsp;&emsp;	rclpy.spin(minimal_subscriber)
+				</p>
+
+				After the node has finished executing (which, in our case, is only when we manually close it from console), we destroy it and shutdown
+				the <span class="snippet">rclpy</span> libraries as follows:
+
+				<p class="code">
+					&emsp;&emsp;	minimal_subscriber.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()
+				</p>
+
+				The rest of the script is just simple code to call the main function if the file is being executed.<br><br>
+				
+				This complete our overview of the subsrciber node.<br><br><br>
+				
+
+
+
+				Let's now take a look at the code of the publisher, and comment what is new:
+
+				<p class="code">
+					import rclpy<br>
+					from rclpy.node import Node<br><br>
+
+					from std_msgs.msg import String<br><br><br>
+
+
+					class MinimalPublisher(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_publisher')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_ = self.create_publisher(String, 'topic', 10)<br>
+					&emsp;&emsp;&emsp;&emsp;		timer_period = 0.5  # seconds<br>
+					&emsp;&emsp;&emsp;&emsp;		self.timer = self.create_timer(timer_period, self.timer_callback)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.i = 0<br><br>
+
+					&emsp;&emsp;	def timer_callback(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		msg = String()<br>
+					&emsp;&emsp;&emsp;&emsp;		msg.data = 'Hello World: %d' % self.i<br>
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_.publish(msg)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Publishing: "%s"' % msg.data)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.i += 1<br><br><br>
+
+
+					def main(args=None):<br>
+					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+
+					&emsp;&emsp;	minimal_publisher = MinimalPublisher()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_publisher)<br><br>
+
+					&emsp;&emsp;	# Destroy the node explicitly<br>
+					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
+					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
+					&emsp;&emsp;	minimal_publisher.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+				The code is not so different from our subscriber node.<br><br>
+				
+				The notable differences are in the function used to interact with the node, here we use:
+
+				<p class="code">
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_ = self.create_publisher(String, 'topic', 10)
+				</p>
+
+				Which works exactly like <span class="snippet">create_subscriber()</span> function, but instead, creates a publisher for the given topic.<br><br>
+
+				We then create a ROS timer in order to schedule a periodic action, using the following function:
+
+				<p class="code">
+					&emsp;&emsp;&emsp;&emsp;		self.timer = self.create_timer(timer_period, self.timer_callback)
+				</p>
+
+				This means that, every <span class="snippet">timer_period</span> seconds, we call the function <span class="snippet">self.timer_callback()</span><br><br>
+
+				The function is defined as follows:
+
+				<p class="code">
+					&emsp;&emsp;	def timer_callback(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		msg = String()<br>
+					&emsp;&emsp;&emsp;&emsp;		msg.data = 'Hello World: %d' % self.i<br>
+					&emsp;&emsp;&emsp;&emsp;		self.publisher_.publish(msg)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Publishing: "%s"' % msg.data)<br>
+					&emsp;&emsp;&emsp;&emsp;		self.i += 1
+				</p>
+
+				The function simply creates a <span class="snippet">String</span> message, writes something in it, and publishes it using the function
+				<span class="snippet">publish()</span> of the publisher class.<br><br>
+
+				The rest of the code should be clear, assuming that nothing went unnoticed in the subscriber example.<br>
+				Please refer to that if you are missing something.<br><br><br>
+
+				<p class="subsection">Linking the new nodes and executing them</p>
+
+				<br>
+				In order for these two nodes to be actually recognized by <span class="snippet">ros2</span>, we will need to change some files.<br>
+				As you may have noticed, this time we didn't create the package with a node like before, so we manually need to input the new nodes.<br><br>
+
+				In order for files to be considered nodes by ROS, we need to define entry points in the <span class="snippet">setup.py</span> file of the package.<br>
+				You can get an idea of the syntax and how they are defined by looking back at the package which we created before
+				with the simple node.<br><br>
+				
+				Let's do the same for this new package.<br>
+				Open <span class="snippet">setup.py</span>, and edit the line entry_points as follows:
+
+				<p class="code">
+					entry_points={<br>
+						&emsp;&emsp;	'console_scripts': [<br>
+						&emsp;&emsp;&emsp;&emsp;		'talker = py_pubsub.publisher_member_function:main',<br>
+						&emsp;&emsp;&emsp;&emsp;		'listener = py_pubsub.subscriber_member_function:main',<br>
+						&emsp;&emsp; ],<br>
+					},
+				</p>
+
+				 <!-- In order for these new files to be found by <span class="snippet">ros2 run</span>, we will need to , as we did not give any information
+				about the nodes this time when we created the package.<br> -->
+				
+				
+				Build the package again, just like we did it before.<br><br>
+
+				Once you source your package, you should be able to run both the subscriber and the publisher, let's do it.<br>
+
+				<p class="code">
+					ros2 run py_pubsub talker
+				</p>
+
+				And in another console (after sourcing your package again):
+
+				<p class="code">
+					ros2 run py_pubsub listener
+				</p>
+
+				This should give you two nodes talking on the topic named "topic", using a <span class="snippet">String</span> message.
+
+				<img class="centered" src="imgs/lecture_2/talker_listener.png">
+
+				
+				Great! We finally created our first two nodes which actually do something using the ROS paradigm.<br>
+				Now, let's take some time to look at the code that made this possible.<br>
+				This should give you a pretty good idea on how to write ROS nodes which use topics.<br><br>
+
+				We will do the same for both services and actions soon, but first, let's try to use this new knowledge to move the Turtle in 
+				TurtleSim in a more "complex" way.<br>
+				You can test your new knowledge with the excercise which follows.
+
+			</p>
+
+			<p class="section">Excercise 2 - Moving TurtleSim with a Publisher</p>
+
+			<p>
+
+				You are requested to write a ROS publisher which interfaces with TurtleSim!<br><br>
+				
+				Now that you are able to write a more complicated behaviour than a simple movement, you should be able to program
+				the turtle to do something more fancy.<br>
+				You are here requested to move the turtle in a <strong>square</strong> path.<br><br>
+
+				There are multiple solutions to this problem.<br>
+				Feel free to come up with your own solution!
+
+			</p>
+
+			<input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+			<div class="spoiler">
+				<div>
+					<p>
+						Solution will be given during the lecture and will be available here later today!
+					</p>
+				</div>
+			</div>
+
+			<p>
+
+				Your solution shoud look something like this:
+			</p>
+
+			<img class="centered" src="imgs/lecture_2/square_turtle.png">
+
+			
+			<p>
+				<strong>Extra</strong>: If you're ahead and want to try to tinker a little bit more with ROS, try to make the Turtle move
+				by going always forward. This means that the turtle should rotate when it reaches a corner of the square.<br>
+				Performing a perfect square with a rotation may be tricky, so don't worry too much about that.<br><br>
+
+				Can you also do that by listenting to <span class="snippet">/turtle1/pose</span>?<br><br>
+
+				Give it a try!
+			
+			</p>
+			
+			<br>
+			<p class="section">Using services</p>
+
+			<p>
+				We have seen how to write and use topics by writing a script. This leaves us only with services and actions to tackle.<br><br>
+
+				Let's now try to write a simple service and client in Python.<br>
+				We will follow an example just like we did before. But this time from here on this page.
+
+				<p class="code">
+					ros2 pkg create --build-type ament_python py_srvcli --dependencies rclpy example_interfaces
+				</p>
+
+				This time, we are specifying a dependency that our application needs in order to run the service structure.<br>
+				This command is not required assuming you have everything already installed, but it is a good practice to specify what
+				your package needs in order to run.<br><br>
+
+				If for some reasons you realize that your package has further dependencies after you created it, you can specify them manually
+				by writing in the <span class="snippet">package.xml</span> file, it should be kinda intuitive how to edit it.<br><br>
+
+				Now create a new file in <span class="snippet">/src/py_srvcli/py_srvcli</span> called
+				<span class="snippet">service_member_function.py</span>, this will be the file were we will write our
+				service server.<br><br>
+
+				The code of the node is the following. It is highly reccomended to write it line by line instead of copying it, so you can get a good understanding
+				of what we're doing.
+
+				<p class="code">
+					from example_interfaces.srv import AddTwoInts<br><br>
+
+					import rclpy<br>
+					from rclpy.node import Node<br><br><br>
+
+
+					class MinimalService(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_service')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.srv = self.create_service(AddTwoInts, 'add_two_ints', self.add_two_ints_callback)<br><br>
+
+					&emsp;&emsp;	def add_two_ints_callback(self, request, response):<br>
+					&emsp;&emsp;&emsp;&emsp;		response.sum = request.a + request.b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Incoming request\na: %d b: %d' % (request.a, request.b))<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;		return response<br><br>
+
+
+					def main():<br>
+					&emsp;&emsp;	rclpy.init()<br><br>
+
+					&emsp;&emsp;	minimal_service = MinimalService()<br><br>
+
+					&emsp;&emsp;	rclpy.spin(minimal_service)<br><br>
+
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+				Let's comment the new things we're seeing in this script.<br><br>
+
+				The imported libraries are the same as before for what regards ROS.<br>
+				This time though, we are also importing an example interface called <span class="snippet">AddTwoInts</span> from the
+				<span class="snippet">example_interfaces</span> package.<br><br>
+
+				This time, we create a service server using the <span cass="snippet">Node</span> method <span class="snippet">create_service()</span>.<br>
+				Here, we specify, once again, the message type for the service, the service name, and the callback function.<br>
+				Things are not so different from writing for a topic.<br><br>
+
+				The callback <span class="snippet">add_two_ints_callback()</span> takes in input, by default, the request and the response.<br><br>
+
+				Things may get confusing here, but everything may make more sense if we are able to understand how an <span class="snippet">AddTwoInts</span>
+				message is structured. Do you remember how to do it?
+
+				<p class="code">
+					ros2 interface show example_interfaces/srv/AddTwoInts
+				</p>
+
+				<img class="centered" src="imgs/lecture_2/addtwoints_interface.png">
+
+				This tells us the fields of a request, and those of the response!<br><br>
+
+				Now we can go back to our, code, and it should be clear what the following snippet does:
+
+				<p class="code">
+					&emsp;&emsp;	def add_two_ints_callback(self, request, response):<br>
+					&emsp;&emsp;&emsp;&emsp;		response.sum = request.a + request.b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Incoming request\na: %d b: %d' % (request.a, request.b))<br><br>
+
+					&emsp;&emsp;&emsp;&emsp;		return response
+				</p>
+
+				The rest of the code is exactly like what we have seen before!<br><br>
+
+
+				We now need to add an entry point for this service, just like we did before for the two talker and listener nodes.<br>
+				You should be able to do it by now.<br><br>
+
+				Let's now write the code for our client of the service.<br>
+				Create a file named <span class="snippet">client_member_function.py</span> in the <span class="snippet">src/py_srvcli/py_srvcli</span> folder, and write in it the following code:
+
+				<p class="code">
+
+					import sys<br><br>
+
+					from example_interfaces.srv import AddTwoInts<br>
+					import rclpy<br>
+					from rclpy.node import Node<br><br><br>
+
+
+					class MinimalClientAsync(Node):<br><br>
+
+					&emsp;&emsp;	def __init__(self):<br>
+					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_client_async')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.cli = self.create_client(AddTwoInts, 'add_two_ints')<br>
+					&emsp;&emsp;&emsp;&emsp;		while not self.cli.wait_for_service(timeout_sec=1.0):<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.get_logger().info('service not available, waiting again...')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req = AddTwoInts.Request()<br><br>
+
+					&emsp;&emsp;	def send_request(self, a, b):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.a = a<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.b = b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.future = self.cli.call_async(self.req)<br>
+					&emsp;&emsp;&emsp;&emsp;		rclpy.spin_until_future_complete(self, self.future)<br>
+					&emsp;&emsp;&emsp;&emsp;		return self.future.result()<br><br><br>
+
+
+					def main():<br>
+					&emsp;&emsp;	rclpy.init()<br><br>
+
+					&emsp;&emsp;	minimal_client = MinimalClientAsync()<br>
+					&emsp;&emsp;	response = minimal_client.send_request(int(sys.argv[1]), int(sys.argv[2]))<br>
+					&emsp;&emsp;	minimal_client.get_logger().info(<br>
+					&emsp;&emsp;&emsp;&emsp;		'Result of add_two_ints: for %d + %d = %d' %<br>
+					&emsp;&emsp;&emsp;&emsp;		(int(sys.argv[1]), int(sys.argv[2]), response.sum))<br><br>
+
+					&emsp;&emsp;	minimal_client.destroy_node()<br>
+					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+
+					if __name__ == '__main__':<br>
+					&emsp;&emsp;	main()
+				</p>
+
+				<br>Let's comment the most interesting parts of this code.
+
+				<p class="code">
+					&emsp;&emsp;&emsp;&emsp;		while not self.cli.wait_for_service(timeout_sec=1.0):<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.get_logger().info('service not available, waiting again...')<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req = AddTwoInts.Request()
+				</p>
+
+				With the first two lines, we are telling our node to wait for the service to be available before continuing with the execution.<br>
+				After that, we instantiate our request message by using the constructor <span class="snippet">Request()</span> of our <span class="snippet">AddTwoInts</span> interface.<br><br>
+
+				The other interesting snippet is how the service is called:
+
+				<p class="code">
+					&emsp;&emsp;	def send_request(self, a, b):<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.a = a<br>
+					&emsp;&emsp;&emsp;&emsp;		self.req.b = b<br>
+					&emsp;&emsp;&emsp;&emsp;		self.future = self.cli.call_async(self.req)<br>
+					&emsp;&emsp;&emsp;&emsp;		rclpy.spin_until_future_complete(self, self.future)<br>
+					&emsp;&emsp;&emsp;&emsp;		return self.future.result()
+
+				</p>
+
+				Here, we are configuring our request and then using it in the function <span class="snippet">call_async()</span>.<br>
+				This allows the node to call a service without blocking the rest of the execution of the code.
+				<strong>Never</strong> use the function <span class="snippet">call()</span>, unless you are ready to mess with Python Threading.<br><br>
+				
+				We then use <span class="snippet">spin_until_future_complete()</span> to wait for the service to answer and give us a result.
+				Which we then obtain using the <span class="snippet">future.result()</span> function.<br><br>
+
+				The rest of the code should be kinda self explanatory and not too much different from what we have already seen.<br>
+				Feel free to ask questions if something is still unclear up to this point.<br><br>
+
+				
+				<p class="subsection">Linking again and running</p>
+
+				Now that we also wrote our client, we are ready to add the entry point also for it. After that, we are finally ready to test our example.<br>
+				Go back to the main folder and build the package again (remember that you may need to check the dependencies with <span class="snippet">rosdep</span> before being able to build).<br><br>
+
+				Now, after sourcing your package, you should be able to run your service with the following commands.<br>
+				First, start the service with:
+
+				<p class="code">
+					ros2 run py_srvcli service
+				</p>
+
+				And then make a request to it with the client node:
+
+				<p class="code">
+					ros2 run py_srvcli client 2 3
+				</p>
+
+				This should output something like this:
+
+				<img class="centered" src="imgs/lecture_2/service_client.png">
+
+			</p>
+
+
+			<p class="section">Excercise 3 - <span class="rainbow-text">Rainbow</span> Turtle!</p>
+
+			<p>
+				We now know how to write services in ROS.<br>
+
+				Let's go back to the excercise we did before and complicate things a little bit!<br><br>
+
+				You are here asked to change the script in Excercise 2 as follows:<br>
+				when the turtle reaches a corner, the color of the line the turtle leaves behind should change!<br><br>
+
+				There is one particular service responsable for the color of the line, try to find it out by tinkering
+				with all the commands we have seen so far (looking online for more documentation, if you are having problems, is totally fair)!<br><br>
+
+				Some tips may be needed here, as using topics and services together can create lots of problems without knowing how ROS works under the hood.
+				The most important thing you need to know: you should <strong>NEVER call a spin action for a node that is already spinning</strong>, that can create problems in the 
+				scheduler of ROS.<br><br>
+				If you want to see the result of a service from a node, but that node is already spinning, you may use the function
+				<span class="snippet">future.add_done_callback()</span>, which allows you to specify a function which gets executed
+				when the service has answered your request. You shouldn't neeed the function in this excercise, but is good to know its existence for the <i>future</i>.<br><br>
+
+				Good luck!<br><br>
+
+				Your solution should look something like this:
+
+				<img class="centered" src="imgs/lecture_2/rainbow_turtle.png">
+
+				<!-- 
+				<input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+				<div class="spoiler">
+					<div>
+						<p>
+							Solution will be given during the lecture and will be available here later today!
+						</p>
+					</div>
+				</div> -->
+	
+
+			</p>
+
+			<p class="section">Creating your own Interfaces</p>
+
+			<p>
+				If you paid attention to the code carefully, you may have noticed that the code we wrote is using a message of type
+				<span class="snippet">AddTwoInts</span>. In order to be able to comfortably work with ROS, you may be 
+				required to be able to implement custom messages to pass to your services and topics. This is what we are going to cover in this part!<br><br>
+
+				We will use the same workspace we used so far to test our new interface, so just go back to your
+				<span class="snippet">src</span> folder and type:
+
+				<p class="code">
+					ros2 pkg create --build-type ament_cmake tutorial_interfaces
+				</p>
+
+				This time, we will have to use, sadly, a CMake package. There is currently no way to generate
+				<span class="snippet">.msg</span> and <span class="snippet">.srv</span> files in a pure Python package. <br><br>
+
+				What we will do, in order to not use C++, is to define our interfaces in a separate CMake package,
+				and then use them inside another Python package.<br><br>
+
+				Interfaces should be defined in their own directories in the package folder, so, just type:
+
+				<p class="code">
+					cd tutorial_interfaces <br><br>
+					mkidr msg<br>
+					mkdir srv
+				</p>
+
+				We can start defining our interfaces by creating files in their own folder.<br><br>
+				
+				Open the <span class="snippet">msg</span> folder, and create a file named <span class="snippet">Num.msg</span>.<br>
+				Just open it, and write the following line:
+
+				<p class="code">
+					int64 num
+				</p>
+
+				And also another file called <span class="snippet">Sphere.msg</span> with the following content:
+
+				<p class="code">
+					geometry_msgs/Point center<br>
+					float64 radius
+				</p>
+
+				This should give you an idea on how to define custom messages that are composed of other already
+				defined messages.<br><br>
+
+				Let's now try to create a srv interface!<br><br>
+
+				Go back, and open the <span class="snippet">srv</span> folder. Inside of it, create a file called
+				<span class="snippet">AddThreeInts.srv</span> and write in it the following lines:
+
+				<p class="code">
+					int64 a<br>
+					int64 b<br>
+					int64 c<br>
+					---<br>
+					int64 sum
+				</p>
+
+				Here, we are defining a service message which takes in input three integers (<span class="snippet">a</span>, <span class="snippet">b</span> and <span class="snippet">c</span>)
+				and returns a single value <span class="snippet">sum</span>.<br><br><br>
+
+
+				What we have to do now is just to link this new interfaces so that <span class="snippet">colcon</span>
+				is able to find them when we buid our package.<br><br>
+
+				In the folder of our interface package, open the file <span class="snippet">CmakeList.txt</span> and
+				add the following lines:
+
+				<p class="code">
+					find_package(geometry_msgs REQUIRED)<br>
+					find_package(rosidl_default_generators REQUIRED)<br><br>
+
+					rosidl_generate_interfaces(${PROJECT_NAME}<br>
+					&emsp;&emsp;	"msg/Num.msg"<br>
+					&emsp;&emsp;	"msg/Sphere.msg"<br>
+					&emsp;&emsp;	"srv/AddThreeInts.srv"<br>
+					&emsp;&emsp;	DEPENDENCIES geometry_msgs # Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg<br>
+					)
+				</p>
+
+				All that is left now is to specify the dependencies our package relies on.<br>
+				In order to do that, we will have to edit the file <span class="snippet">package.xml</span>.<br><br>
+
+				Interfaces rely on <span class="snippet">rosidl_default_generators</span> in order to generate
+				language-specific code, so we will have to add it to our execution-stage dependencies using the tag
+				<span class="snippet">&#60;exec_depend&#62;</span>.<br>
+				This package belongs to the dependency group <span class="snippet">rosidl_interface_packages</span>,
+				which can be defined using the tag <span class="snippet">&#60;member_of_group&#62;</span>.<br>
+				Additionally, we have to define our dependency to <span class="snippet">geometry_msgs</span>.<br><br>
+
+				Add the following lines to <span class="snippet">package.xml</span>:
+
+				<p class="code">
+					&#60;depend&#62;geometry_msgs&#60;/depend&#62;<br><br>
+
+					&#60;build_depend&#62;rosidl_default_generators&#60;/build_depend&#62;<br>
+					&#60;exec_depend&#62;rosidl_default_runtime&#60;/exec_depend&#62;<br>
+					&#60;member_of_group&#62;rosidl_interface_packages&#60;/member_of_group&#62;
+				</p>
+				
+
+				This complete everything you need to do in order to implement your interfaces.<br><br>
+				
+				Go back to the main folder of your workspace, and try to build everything like we always did.<br>
+				If you now source you new package, you should be able to see your interfaces with the command:
+
+				<p class="code">
+					ros2 interface show [interface_name]
+				</p>
+
+				Great! this complete almost everything we need to know about interfaces!<br><br>
+
+				If you wish to build interfaces and write Python code in the same package, you can build your package
+				using the <span class="snippet">--build type</span> set to <span class="snippet"> ament_cmake_python</span>.<br>
+				There is currently no plan to discuss these type of packages. For the rest of the course we will mainly
+				use different packages like	we just did.<br><br>
+
+				If you want to test your new interfaces, you can try to edit your service and client script we wrote before
+				to take <span class="snippet">AddThreeInts</span> in input. If you did the exercises before, it shouldn't
+				be hard at all. Give it a try!<br><br>
+
+			</p>
+			<p class="subsection">Conclusions and <i>future</i> lectures</p>
+			<p>
+				This complete everything we needed to see for this lecture.<br>
+				We're getting really close to be able to fully control a ROS robot.<br><br>
+			
+
+				What is left now is to learn how to write actions (and some other little things, but nothing fancy).<br>
+				This will be the main focus of the next lecture. After that, we will be ready to introduce Gazebo
+				and finally start having fun with simulated robots!<br><br>
+
+				See you soon!
+
+				
+
+			</p>
+
+			<div class="to_be_continued"></div>
+
+        </div>
+    </body>
+</html>
