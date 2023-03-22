@@ -14,7 +14,8 @@
 				interact with other nodes in the simplest way possible), but is not enough when we want to develop
 				more complex applications, and interact with different nodes simultaneously.<br><br>
 				
-				In this lecture, we will see how to interact first with topics, and then services.<br>
+				In this lecture, we will first see how to manage ROS code using workspaces and packages, and then how to interact with
+				ROS topics thorugh a Python script.<br>
 				Some excercies are given to test your understanding of the new arguments.
 			</p>
 
@@ -555,11 +556,13 @@
 						</p>
 
 						What we are telling the program here, is to take one movement at time from our <span class="snippet">turtle_moves</span> array, and then publish
-						it to the previously created topic. The <span class="snippet">angular</span> movement il all set to zero, as we don't care about rotating the
+						it to the previously created topic. The <span class="snippet">angular</span> movement is all set to zero, as we don't care about rotating the
 						turtle here.<br>
 						Remember to create your <span class="snippet">self.i</span> variable in your <span class="snippet">__init__()</span> function, and set it to 0.<br><br>
 
-						That's it!<br><br>
+						That's it!<br>
+						Just run one TurtleSim in a separate window, and then your publisher node (after properly linking and building it), and it should be all set!<br><br>
+
 						The full code for the node is uplodaded at the following link: <a href="excercise_solutions/excercise_2/turtle_publisher.py">turtle_publisher.py</a>
 					</p>
 				</div>
@@ -583,6 +586,20 @@
 				Give it a try!
 			
 			</p>
+
+
+			<p class="section">Conclusions</p>
+
+			That's it!<br>
+			Assuming you have completed the excercise, you should be starting to build some confidence on how to write code to control ROS nodes.<br><br>
+
+			If there are still some problems, my suggestion is to keep playing a little bit with topics in Python (maybe try to do the extra excercise?).<br>
+			It is impossible to cover any problem that may arise with just few excercises using topics, but it is good to have the right preparation to be able
+			to tackle (maybe after a lot of Googling and StackOverflow, nothing is gonna save you from that, let's face it) any given problem.<br>
+
+			In the next lecture, we will cover the scripting of ROS Services in Python. And do some excercise also for that.<br><br>
+
+			See you soon!
 		
 			<div class="to_be_continued"></div> 
 
