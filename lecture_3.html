@@ -259,7 +259,7 @@ def send_request(self, a, b):
 						You should know by now how to get more info on services and interfaces (<span class="snippet">ros2 service type [service_name]</span> for the message type, and
 						<span class="snippet">ros2 interface show [interface_name]</span> for the interface).<br><br>
 
-						With that being done, let's edit our <span class="snippet">turtle_publisher.py</span> to accomodate the new request.<br>
+						With that being done, let's edit our <span class="snippet">turtle_publisher.py</span> from Excercise 2 to accomodate the new request.<br>
 						First of all, we want to include the new interface in our code (we are also importing <span class="snippet">randint</span> in order to pick a random color).
 
 						<p class="code">
@@ -290,7 +290,7 @@ def send_request(self, a, b):
 
 
 						That's it!<br>
-						As it was suggested, this time we should not use the function <span class="snippete">spin_until_future_complete()</span>, mainly for two reasons: first of all
+						As it was suggested, this time we did not use the function <span class="snippet">spin_until_future_complete()</span>, mainly for two reasons: first of all,
 						our node is already spinning, and calling the function will mess with the ROS execution of our program, secondly, we don't care about the result of the service,
 						we just care about sending a message to it in order to change the color of the turtle's trail.<br><br>
 
@@ -369,7 +369,7 @@ def send_request(self, a, b):
 
 
 				What we have to do now is just to link this new interfaces so that <span class="snippet">colcon</span>
-				is able to find them when we buid our package.<br><br>
+				is able to find them when we build our package.<br><br>
 
 				In the folder of our interface package, open the file <span class="snippet">CmakeList.txt</span> and
 				add the following lines:
@@ -422,6 +422,14 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 				using the <span class="snippet">--build type</span> set to <span class="snippet"> ament_cmake_python</span>.<br>
 				There is currently no plan to discuss these type of packages. For the rest of the course we will mainly
 				use different packages like	we just did.<br><br>
+
+				<strong>NOTE</strong>: in order for your custom interfaces to be recognized by your IDE and the autocomplete to work, you will need
+				to start the IDE from a terminal which has your workspace sourced.<br>
+				If you're using Visual Studio Code, you can simply do that by typing:
+
+				<p class="code">
+					code [folder_name]
+				</p>
 
 				If you want to test your new interfaces, you can try to edit your service and client script we wrote before
 				to take <span class="snippet">AddThreeInts</span> in input. If you did the exercises before, it shouldn't
