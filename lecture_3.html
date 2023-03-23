@@ -255,7 +255,48 @@ def send_request(self, a, b):
             <div class="spoiler">
                 <div>
                     <p>
-                        Solution will be given during the lecture and will be available here later today!
+                        So, first of all. The service you want to send data to is <span class="snippet">/turtle1/set_pen</span>.<br><br>
+						You should know by now how to get more info on services and interfaces (<span class="snippet">ros2 service type [service_name]</span> for the message type, and
+						<span class="snippet">ros2 interface show [interface_name]</span> for the interface).<br><br>
+
+						With that being done, let's edit our <span class="snippet">turtle_publisher.py</span> to accomodate the new request.<br>
+						First of all, we want to include the new interface in our code (we are also importing <span class="snippet">randint</span> in order to pick a random color).
+
+						<p class="code">
+							from turtlesim.srv import SetPen<br>
+							from random import randint
+						</p>
+
+						Then, in our class <span class="snippet">__init__()</span> function we are adding few lines to subscribe to the service and instantiate a variable for the request
+
+						<p class="code">
+							self.client = self.create_client(SetPen, '/turtle1/set_pen')<br>
+							self.req = SetPen.Request()
+						</p>
+
+						What we need to add now, is a request to <span class="snippet">/turtle1/set_pen</span> in our <span class="snippet">timer_callback()</span> function, just like we
+						did in the service client example from before.
+
+						<p class="code">
+							self.req.r = randint(0, 255)<br>
+							self.req.g = randint(0, 255)<br>
+							self.req.b = randint(0, 255)<br>
+							self.req.width = 10<br>
+							self.req.off = 0<br><br>
+					
+							self.future = self.client.call_async(self.req)<br>
+							self.publisher.publish(msg)
+						</p>
+
+
+						That's it!<br>
+						As it was suggested, this time we should not use the function <span class="snippete">spin_until_future_complete()</span>, mainly for two reasons: first of all
+						our node is already spinning, and calling the function will mess with the ROS execution of our program, secondly, we don't care about the result of the service,
+						we just care about sending a message to it in order to change the color of the turtle's trail.<br><br>
+
+						Great! Now you can build your package as usual an try to run it!<br><br>
+
+						The full code of the solution is uploaded here: <a href="excercise_solutions/excercise_3/rainbow_client.py">rainbow_client.py</a>
                     </p>
                 </div>
             </div>
@@ -412,7 +453,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 				<div class="spoiler">
 					<div>
 						<p>
-							Solution will be given during the lecture and will be available here later today!
+							This excercise was not discussed in class. Solution will be online in a few days!<br>
+							Keep trying! You got it!
 						</p>
 					</div>
 				</div>
