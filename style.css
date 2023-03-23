@@ -36,6 +36,16 @@
 	white-space: nowrap;
 }
 
+pre {
+	border: 1px dashed rgb(100,100,100);
+	background-color: rgb(220,220,220);
+	font-family: monospace;
+	padding:20px;
+	overflow-x: auto;
+	padding-bottom: 0px;
+}
+
+
 .subsection {
 	font-weight: bold;
 	margin: 4px;
