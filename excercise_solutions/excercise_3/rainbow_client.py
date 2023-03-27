@@ -16,7 +16,7 @@ turtle_moves = [
 ]
 
 
-class TurtlePublisher(Node):
+class RainbowClient(Node):
 
     def __init__(self):
         super().__init__('turtle_publisher')
@@ -49,14 +49,13 @@ class TurtlePublisher(Node):
 
 
 def main(args=None):
-
     rclpy.init(args = args)
 
-    turtle_publisher = TurtlePublisher()
+    rainbow_client = RainbowClient()
 
-    rclpy.spin(turtle_publisher)
+    rclpy.spin(rainbow_client)
 
-    turtle_publisher.destroy_node()
+    rainbow_client.destroy_node()
     rclpy.shutdown()
 
 
