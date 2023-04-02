@@ -1,0 +1,179 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 4 - 05/04/2023 </p>
+
+			<div class="divider"></div>
+
+           <p>
+                We're finally there! This is the final lecture in which we will cover scripting for ROS.<br>
+				We're finally introduing the last big component in the ROS Graph, which is actions!<br>
+				Before doing that, we will spend a little bit of time to see how to configure a ROS Launch file, so that you can
+				start multiple nodes all together when you launch your project!<br>
+				Let's get to it!
+           </p>
+
+		   	<p class="section">Creating a Launch File</p>
+
+			<p>
+				The launch system in ROS 2 is responsible for helping the user describe the configuration of their system and then execute it as described.<br>
+				The configuration of the system includes what programs to run, where to run them, what arguments to pass them, and ROS-specific conventions
+				which make it easy to reuse components throughout the system by giving them each a different configuration.<br>
+				It is also responsible for monitoring the state of the processes launched, and reporting and/or reacting to changes in the state of those processes.<br><br>
+
+				If you are tired of typing every time <span class="snippet">ros2 launch ...</span> for every node you have to start, this is what you've been
+				waiting for.<br>
+				Here is the code of a simple ROS launch file, which starts two Turtlesim applications together.
+				
+			</p>
+
+			<pre>
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='turtlesim',
+            namespace='turtlesim1',
+            executable='turtlesim_node',
+            name='sim'
+        ),
+        Node(
+            package='turtlesim',
+            namespace='turtlesim2',
+            executable='turtlesim_node',
+            name='sim'
+        ),
+        Node(
+            package='turtlesim',
+            executable='mimic',
+            name='mimic',
+            remappings=[
+                ('/input/pose', '/turtlesim1/turtle1/pose'),
+                ('/output/cmd_vel', '/turtlesim2/turtle1/cmd_vel'),
+            ]
+        )
+    ])
+			</pre>
+		<p>
+			Understanding what this launch file does should be kind of trivial at this point, but let's comment the code for a little bit.<br><br>
+
+			First of all, we have our import of the Python libraries required for writing a Python launch file. 
+			<p class="code">
+				from launch import LaunchDescription<br>
+				from launch_ros.actions import Node
+			</p>
+			Note that this time, the <span class="snippet">Node</span> class is not imported from <span class="snippet">rclpy</span> libraries, but from <span class="snippet">launch_ros.actions</span>.<br><br>
+
+			Then, we define our function <span class="nippet">generate_launch_description</span>, which returns a new <span class="snippet">LaunchDescription</span>
+			object.<br><br>
+
+			The <span class="snippet">LaunchDescription</span> object takes in input an array of ROS2 <span class="snippet">Node</span>,
+			which are those which will be executed when the launch file is run.<br>
+			Let's look closer to one of the <span class="snippet">Node</span> entry.
+
+			<pre>
+Node(
+    package='turtlesim',
+    namespace='turtlesim1',
+    executable='turtlesim_node',
+    name='sim'
+),
+			</pre>
+
+			Here, we define, the package of the node, the namespace for the node, the executable (which is the node itself), and a name for the node.<br>
+			One new thing that we haven't seen before, which will be of great importance for bigger projects, is the namespace.<br>
+			This allows you to run multiple nodes of the same application, and divide them in different namespaces.<br><br>
+
+			From the full code of the launch file you may see how two turtlesim nodes are started, and created in two different namespaces.<br>
+			This allows you to start multiple instances and/or nodes of the same application, without having conflicting topics.<br><br>
+
+			The above launch file will launch two different turtlesim applications, which can be controlled separately.<br>
+			Using the <span class="snippet">cmd_vel</span> topic, thanks to the namespaces, we can instruct the two turtles separately.<br><br>
+			One topic will be:
+			<p class="code">
+				/turtlesim1/turtle1/cmd_vel
+			</p>
+			And the other:
+			<p class="code">
+				/turtlesim2/turtle1/cmd_vel
+			</p>
+
+			The final part of the code starts the <span class="snippet">mimic</span> node, and with these two lines:
+
+			<pre>
+remappings=[
+    ('/input/pose', '/turtlesim1/turtle1/pose'),
+    ('/output/cmd_vel', '/turtlesim2/turtle1/cmd_vel'),
+]
+			</pre>
+
+			remaps some topics of the node to different ones.<br><br>
+</p>
+		
+			<p class="subsection">Changing parameters at launch</p>
+
+<p>
+			As we anticipated in the previous lecture, launch files can also be used to configure node's parameters at run time. Doing that is very simple.<br>
+			The following launch file will modify the parameter of the script we wrote in the previous lecture.
+
+			<pre>
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='python_parameters',
+            executable='minimal_param_node',
+            name='custom_minimal_param_node',
+            output='screen',
+            emulate_tty=True,
+            parameters=[
+                {'my_parameter': 'earth'}
+            ]
+        )
+    ])
+			</pre>
+
+
+			The lines:
+			<p class="code">
+				output='screen',<br>
+				emulate_tty=True,
+			</p>
+			Are used to redirect the output of the node to the console. The reason why this is needed is because nodes launched from a launch file are not directly attached to the std_output of
+			your console. Nothing fancy.
+		</p>
+
+		<p>
+			That's it. Launch files have various degree of customization, more than we need at this point, and more than we would be able to cover in a single lecture.<br>
+			Feel free to take a look at the offical documentation <a href="https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Launch-Main.html">here</a>, if you wish to customize your launcher file in a particular way.
+		</p>
+
+
+
+
+		<p class="section">Writing Actions</p>
+		<p>
+			Let's now get to the final big component of the ROS Graph: actions.<br><br>
+
+			The idea behind writing an action is not so different from writing services: you have an action server and an action client.<br>
+			
+
+			Actions are defined with two main files: the action file which describes the message used in the action (which are just interface messages like <span class="snippet">msg</span> and <span class="snippet">srv</span>),
+			and the two scripts which run the action: one for the server, and one for the client.
+		</p>
+
+		<p class="subsection">Writing your own action interface</p>
+
+			<div class="to_be_continued"></div>
+
+
+        </div>
+    </body>
+</html>
