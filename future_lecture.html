@@ -9,10 +9,10 @@
 			<div class="divider"></div>
 
            <p>
-                We're finally there! This is the final lecture in which we will cover scripting for ROS.<br>
-				We're finally introduing the last big component in the ROS Graph, which is actions!<br>
+                We're finally there! This is the final lecture in which we will cover scripting for ROS. We're finally introduing the last big component in the ROS Graph: actions!<br><br>
 				Before doing that, we will spend a little bit of time to see how to configure a ROS Launch file, so that you can
-				start multiple nodes all together when you launch your project!<br>
+				start multiple nodes all together when you launch your project!<br><br>
+
 				Let's get to it!
            </p>
 
@@ -69,7 +69,7 @@ def generate_launch_description():
 			</p>
 			Note that this time, the <span class="snippet">Node</span> class is not imported from <span class="snippet">rclpy</span> libraries, but from <span class="snippet">launch_ros.actions</span>.<br><br>
 
-			Then, we define our function <span class="nippet">generate_launch_description</span>, which returns a new <span class="snippet">LaunchDescription</span>
+			Then, we define our function <span class="snippet">generate_launch_description</span>, which returns a new <span class="snippet">LaunchDescription</span>
 			object.<br><br>
 
 			The <span class="snippet">LaunchDescription</span> object takes in input an array of ROS2 <span class="snippet">Node</span>,
@@ -92,6 +92,10 @@ Node(
 			From the full code of the launch file you may see how two turtlesim nodes are started, and created in two different namespaces.<br>
 			This allows you to start multiple instances and/or nodes of the same application, without having conflicting topics.<br><br>
 
+			Note that all the <span class="snippet">Node</span> classes can be configured at any given time and then given in input to the <span class="snippet">LaunchDescription</span>
+			object. Which means that you could build your <span class="snippet">Node</span> array dinamically before (i.e., maybe depending on some arguments given in input),
+			and then give it to <span class="snippet">LaunchDescription</span>.<br><br>
+
 			The above launch file will launch two different turtlesim applications, which can be controlled separately.<br>
 			Using the <span class="snippet">cmd_vel</span> topic, thanks to the namespaces, we can instruct the two turtles separately.<br><br>
 			One topic will be:
@@ -112,7 +116,7 @@ remappings=[
 ]
 			</pre>
 
-			remaps some topics of the node to different ones.<br><br>
+			remaps some topics of the node to different ones. This code will link the two spawned turtles together, making one turtle "mimic" another.<br><br>
 </p>
 		
 			<p class="subsection">Changing parameters at launch</p>
@@ -147,7 +151,7 @@ def generate_launch_description():
 				emulate_tty=True,
 			</p>
 			Are used to redirect the output of the node to the console. The reason why this is needed is because nodes launched from a launch file are not directly attached to the std_output of
-			your console. Nothing fancy.
+			your console. Nothing fancy.<br>
 		</p>
 
 		<p>
@@ -162,14 +166,464 @@ def generate_launch_description():
 		<p>
 			Let's now get to the final big component of the ROS Graph: actions.<br><br>
 
-			The idea behind writing an action is not so different from writing services: you have an action server and an action client.<br>
+			Let's take a look at the example graph of a ROS action from the first lecture.
+		</p>
 			
+			<img class="centered" src="./imgs/lecture_1/actions.gif">
 
-			Actions are defined with two main files: the action file which describes the message used in the action (which are just interface messages like <span class="snippet">msg</span> and <span class="snippet">srv</span>),
-			and the two scripts which run the action: one for the server, and one for the client.
+		<p><br>
+
+			An action wraps within itself two services, and one topic.<br>
+			In terms of actual code implementation, all these structures are packed inside appropriate ROS Action functions and methods, so you won't have to configure exactly
+			two services and one topic in your script for an action to work.<br>
+			Actions are composed, just like services, of a server and a client. We will see how to implement both.<br><br>
+
+			<!-- In terms of implementation, the idea behind an action is not so different from that of services: you have an action server and an action client.<br><br> -->
+
+			If you wish to implement your own action interface (which is usually the case, as actions are quite specific for the task they are thought for), you can create your own action interfaces just like for services.<br><br>
+
+		</p>
+		<p class="subsection">Writing your own action interface</p>
+		<p>
+
+			The syntax for creating action interfaces is like this:
+
+			<p class="code">
+				# Request<br>
+				---<br>
+				# Result<br>
+				---<br>
+				# Feedback
+			</p>
+
+			Let's try to create our own interface for an example we will soon write.<br><br>
+
+			Let's create a package for that:
+
+			<p class="code">
+				ros2 pkg create action_tutorials_interfaces
+			</p>
+
+			And inside of that create a folder called <span class="snippet">action</span>.<br>
+			Inside of it, create a file called <span class="snippet">Fibonacci.action</span>, and paste the following code in it:
+
+			<p class="code">
+				int32 order<br>
+				---<br>
+				int32[] sequence<br>
+				---<br>
+				int32[] partial_sequence
+			</p>
+
+			Here, we are writing an action which takes in input as a request an 32 bits integer, returns an array of integers when completed, and provides feedback with another array of integers.<br><br>
+
+			So, just like we did  in the last lecture, let's link this interface for the compiler and provide the appropriate depdendencies for it.<br><br>
+
+			This should go in the <span class="snippet">CmakeList.txt</span> file:
+
+			<pre>
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/Fibonacci.action"
+)
+			</pre>
+
+			And this in <span class="snippet">package.xml</span>:
+
+			<pre>
+&#60;buildtool_depend&#62;rosidl_default_generators&#60;/buildtool_depend&#62;
+
+&#60;depend&#62;action_msgs&#60;/depend&#62;
+
+&#60;member_of_group&#62;rosidl_interface_packages&#60;/member_of_group&#62;
+			</pre>
+
+
+			That's it. Now it's time to use this interface in our own action server and client!
+
 		</p>
 
-		<p class="subsection">Writing your own action interface</p>
+		<p class="subsection">Writing an action server</p>
+
+
+
+		<p>
+			Let's now create a new package for our action. In your <span class="snippet">src</span> folder:
+
+			<p class="code">
+				ros2 pkg create --build-type ament_python fibonacci_action
+			</p>
+
+			The code for the action server is the following. Just create a new file called <span class="snippet">fibonacci_action_server.py</span> and write the following code in it:
+
+			<pre>
+import rclpy
+from rclpy.action import ActionServer
+from rclpy.node import Node
+
+from action_tutorials_interfaces.action import Fibonacci
+
+
+class FibonacciActionServer(Node):
+
+	def __init__(self):
+		super().__init__('fibonacci_action_server')
+		self._action_server = ActionServer(
+			self,
+			Fibonacci,
+			'fibonacci',
+			self.execute_callback
+		)
+
+	def execute_callback(self, goal_handle):
+		self.get_logger().info('Executing goal...')
+		result = Fibonacci.Result()
+		return result
+
+
+def main(args=None):
+	rclpy.init(args=args)
+
+	fibonacci_action_server = FibonacciActionServer()
+
+	rclpy.spin(fibonacci_action_server)
+
+
+if __name__ == '__main__':
+	main()
+			</pre>
+
+
+			Let's take a look for a moment at the code we just wrote.<br><br>
+
+			First of all, this time we are also importing the class <span class="snippet">ActionServer</span> along the usual libraries.<br>
+			Additionally, we are also importing the interface we created before.<br><br>
+
+			In the <span class="snippet">__init__()</span> function, we are creating the <span class="snippet">ActionServer</span> with the following lines:
+
+<pre>
+self._action_server = ActionServer(
+    self,
+    Fibonacci,
+    'fibonacci',
+    self.execute_callback
+)
+
+</pre>
+
+			The <span class="snippet">ActionServer</span> class takes in input four arguments:<br><br>
+
+			1. A ROS 2 node to add the action client to: <span class="snippet">self</span>.<br>
+			2. The type of the action: <span class="snippet">Fibonacci</span> (which is the interface we just created).<br>
+			3. The action name: <span class="snippet">'fibonacci'</span>.<br>
+			4. A callback function for executing accepted goals: <span class="snippet">self.execute_callback</span>. This callback must return a result message for the action type.<br><br>
+		
+			The <span class="snippet">execute_callback</span> method is defined as follows:
+
+			<pre>
+def execute_callback(self, goal_handle):
+    self.get_logger().info('Executing goal...')
+    result = Fibonacci.Result()
+    return result
+			</pre>
+
+			Currently, this method just logs a message when the action is requested, instantiates an empty object for the result, and returns it.<br><br>
+
+			We can try to run this code very easily and see how it functions in the console.<br>
+			Build the package, and then, once you sourced your environment, run:
+
+			<p class="code">
+				ros2 run fibonacci_action fibonacci_server
+			</p>
+
+			On another console, you can send a message to your action server, after sourcing your environment again, like this:
+
+			<p class="code">
+				ros2 action send_goal fibonacci action_tutorials_interfaces/action/Fibonacci "{order: 5}"
+			</p>
+
+			This should output something like this:
+
+			<img class="centered" src="./imgs/lecture_4/first_action_example_0.png">
+
+			The result from the console tells us that the action was aborted. This is because we still have not configured our goal in the callback function.<br>
+			Let's edit the callback action like this:
+
+			<pre>
+def execute_callback(self, goal_handle):
+    self.get_logger().info('Executing goal...')
+
+    sequence = [0, 1]
+
+    for i in range(1, goal_handle.request.order):
+        sequence.append(sequence[i] + sequence[i-1])
+
+    goal_handle.succeed()
+
+    result = Fibonacci.Result()
+    result.sequence = sequence
+    return result
+			</pre>
+
+
+			So, we using the <span class="snippet">order</span> value requested by the action client, we iterate over different numbers and compute the correct Fibonacci sequence.<br>
+			Additionally, we set the action as succesfully completed by using the method <span class="snippet">succeed()</span> of the <span class="snippet">goal_handle</span> object.<br><br>
+
+			We then assign to the result the correct sequence and return it. Let's build the package and run it again.<br><br>
+
+			The output, this time, shoud look something like this:
+			<img class="centered" src="./imgs/lecture_4/first_action_example_1.png">
+
+
+			What if we want to provide feedback during the execution? To do that, we can modify our callback function as follows:
+
+			<pre>
+def execute_callback(self, goal_handle):
+    self.get_logger().info('Executing goal...')
+
+    feedback_msg = Fibonacci.Feedback()
+    feedback_msg.partial_sequence = [0, 1]
+
+    for i in range(1, goal_handle.request.order):
+        feedback_msg.partial_sequence.append(
+            feedback_msg.partial_sequence[i] + feedback_msg.partial_sequence[i-1])
+        self.get_logger().info('Feedback: {0}'.format(feedback_msg.partial_sequence))
+        goal_handle.publish_feedback(feedback_msg)
+        time.sleep(1)
+
+    goal_handle.succeed()
+
+    result = Fibonacci.Result()
+    result.sequence = feedback_msg.partial_sequence
+    return result
+			</pre>
+
+
+		Here, we created the appropriate <span class="snippet">Feedback</span> message, edited it in the loop, and send it to the client with the method
+		<span class="snippet">publish_feedback()</span> of <span class="snippet">goal_handle</span>.<br><br>
+
+		If you want to see the feedback from the console, remember to add the parameter <span class="snippet">--feedback</span> to the action call.
+
+
+		</p>
+
+
+		<p class="subsection">Writing an action client</p>
+
+		<p>
+			Let's now write an action client for our server, so that we don't have to call the action from console.<br><br>
+
+			Create a new file called <span class="snippet">fibonacci_action_client.py</span>, and write the following code in it:
+
+			<pre>
+import rclpy
+from rclpy.action import ActionClient
+from rclpy.node import Node
+
+from action_tutorials_interfaces.action import Fibonacci
+
+
+class FibonacciActionClient(Node):
+
+    def __init__(self):
+        super().__init__('fibonacci_action_client')
+        self._action_client = ActionClient(self, Fibonacci, 'fibonacci')
+
+    def send_goal(self, order):
+        goal_msg = Fibonacci.Goal()
+        goal_msg.order = order
+
+        self._action_client.wait_for_server()
+
+        return self._action_client.send_goal_async(goal_msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    action_client = FibonacciActionClient()
+    future = action_client.send_goal(10)
+
+    rclpy.spin_until_future_complete(action_client, future)
+
+
+if __name__ == '__main__':
+    main()
+			</pre>
+		
+            Here we are importing the <span class="snippet">ActionClient</span>, alongside the usual imports.<br><br>
+
+            In the <span class="snippet">__init__()</span> method, we are creating an <span class="snippet">ActionClient</span> with three arguments:<br>
+            1. The ROS node to add the action client to.<br>
+            2. The interface message used for the action.<br>
+            3. The name of the action.<br><br>
+
+            We then configure our <span class="snippet">send_goal()</span> function to create the goal with a given number, and send the request using the function <span class="snippet">send_goal_async()</span>.<br><br>
+
+            In the main function, similarly to what we did for the service client, we crete the request, and then use the function <span class="snippet">spin_until_future_complete()</span>
+            to wait for the request to be completed.<br><br>
+
+            What if we want to read the result of the action, and also get feedback for it?<br><br>
+
+            For that, we will have to modify how we obtain the result of the action (<span class="snippet">spin_until_future_complete()</span> is a blocking function, so we cannot use that
+            if we want to do something while we wait for the result).<br><br>
+
+            Let's modify the code for our client like this:
+
+
+            <pre>
+import rclpy
+from rclpy.action import ActionClient
+from rclpy.node import Node
+
+from action_tutorials_interfaces.action import Fibonacci
+
+
+class FibonacciActionClient(Node):
+
+    def __init__(self):
+        super().__init__('fibonacci_action_client')
+        self._action_client = ActionClient(self, Fibonacci, 'fibonacci')
+
+    def send_goal(self, order):
+        goal_msg = Fibonacci.Goal()
+        goal_msg.order = order
+
+        self._action_client.wait_for_server()
+
+        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
+        self._send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Goal rejected :(')
+            return
+
+        self.get_logger().info('Goal accepted :)')
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        result = future.result().result
+        self.get_logger().info('Result: {0}'.format(result.sequence))
+        rclpy.shutdown()
+
+    def feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().info('Received feedback: {0}'.format(feedback.partial_sequence))
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    action_client = FibonacciActionClient()
+
+    action_client.send_goal(10)
+
+    rclpy.spin(action_client)
+
+
+if __name__ == '__main__':
+    main()
+            </pre>
+
+
+            Lots of things have changed here.<br><br>
+            
+            First of all, our action to send the goal request has been encapsulated in the method <span class="snippet">send_goal()</span> Here, alongside the goal message, we also
+            pass one function to the <span class="snippet">feedback_callback</span> argument, which specifies which function will handle the feedback messages.<br><br>
+
+            The function waits for the action server to be online with the function <span class="snippet">wait_for_server()</span>.<br>
+            It then creates the goal future, and, instead of waiting for the result using <span class="snippet">spin_until_future_complete</span>, it uses the function
+            <span class="snippet">add_done_callback()</span>, which adds a callback function to the future to be executed when it is completed
+            (if you did exercise 3 in the previous lecture, you should have already seen this).<br><br>
+
+            The <span class="snippet">goal_response_callback()</span> method verifies if the goal gets accepted, and, if it does, it creates a new future for the action result,
+            and adds a callback to it.<br><br>
+
+            The functions <span class="snippet">get_result_callback()</span> and <span class="snippet">feedback_callback()</span> should be kind of self explanatory.<br><br>
+
+            Finally, in the <span class="snippet">main()</span> function, we create our node and send the request to the action server.<br><br>
+
+            That's it!<br>
+            With this, we have covered every single ROS structure that 
+        
+        
+        </p>
+
+        <p class="section">Exercise 5 - ROS Final: Patrolling Turtle</p>
+        <p>
+            This exercise will require a lot of tinkering, and probably more time than every previous exercise.<br><br>
+
+            You are here requested to create an action for the turtle, which takes in input an array of coordinates as a goal, and makes the turtle move to every coordinate given, in sequence.<br>
+            The action should provide feedback everytime a coordinate is reached.<br><br>
+
+			This exercise is gonna be though. Some tips that may be required to not go crazy with the ROS execution.<br>
+			<strong>Your node should be multi-threaded</strong>, so that if you subscribe to a topic, you still get updates from that topic even if your code is busy waiting for something else to finish.<br>
+			To do that, you should use the ROS <span class="snippet">MultiThreadedExecutor</span>. An example on how to use it is given here:
+
+			<pre>
+from rclpy.executors import MultiThreadedExecutor
+
+#...your node here...
+
+def main():
+    rclpy.init(args=args)
+
+    executor = MultiThreadedExecutor()
+    patrolling_action_server = PatrollingActionServer()
+    executor.add_node(patrolling_action_server)
+
+    executor.spin()
+			</pre>
+
+			The best advice I can give you is to work at steps. Implement first your action to move the turtle from one point to another, and then extend it (or create a new one, it's up to you) to iterate
+			that action multiple times, over an array of targets.<br><br>
+			
+			How did you do in trigonometry? Knowing how to get the right vectors between points is the key to complete this exercise.<br><br>
+
+
+			Good luck!<br><br>
+
+			Some examples of an execution of the patrolling action. Depending on how you decide to do it, your turtle may perform smooth paths between points, or rotate before and then move.
+			Also not rotating at all is a solution, if you are having an hard time coming up with the solution.
+
+		</p>
+			<img class="centered" src="./imgs/lecture_4/patrolling_turtle.png"><img class="centered" src="./imgs/lecture_4/patrolling_turtle_smooth.png">
+		<p>
+
+
+            With this exercise, we say goodbye to our beloved turtle, as we will be moving to Gazebo from the next lecture.<br><br>
+
+            The solution for this exercise will be available after the easter vacations, take your time! Some tips will be published midway!<br>
+        </p>
+
+
+		<p class="section">Conclusions</p>
+
+		<p>
+			If you made it up to this point with all the exercises done, you should start to have a really good grasp on how to approach programming robots with ROS.<br><br>
+
+			One interesting topic you may want to take a look for, if you are working with complex projects in the future, is the <a href="https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html">Callback Groups</a>,
+			which may be required if you have some racing conditions when working with multi-threaded implementations.<br><br>
+
+			There are a lot of topics we have not covered yet, and probably won't at this point. The ROS environment is vast, and covering everything in a small course is not entirely possible.<br>
+			Hopefully this first part of the course has given you enough of a solid base to tackle any problem that you will eventually face when working with ROS.<br><br>
+
+			From the next lecture we will be moving to Gazebo! A powerful simulation software which allows you to test your robot-related projects in a phyisically reliable model of the real world environment.<br>
+			There are still some interesting tools in the ROS environment that we have not seen and may introduce later on (i.e. lidar scanners map and live camera feeds),
+			we will come back to them if needed.<br><br>
+
+			Gazebo is a completely independent program from ROS, but just like ROS, uses topics to pass information between the models in its simulation.<br>
+			Piloting a robot inside Gazebo is as simple as moving our turtle (with the added complexity of a third component in the movement space),
+			all we need to do is bridge the topics from Gazebo to ROS, and that we'll do the trick! This is what we will do in the next lecture!<br><br>
+
+			See you soon!
+
+		</p>
 
 			<div class="to_be_continued"></div>
 
