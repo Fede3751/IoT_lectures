@@ -24,9 +24,9 @@
 				which make it easy to reuse components throughout the system by giving them each a different configuration.<br>
 				It is also responsible for monitoring the state of the processes launched, and reporting and/or reacting to changes in the state of those processes.<br><br>
 
-				If you are tired of typing every time <span class="snippet">ros2 launch ...</span> for every node you have to start, this is what you've been
+				If you are tired of typing every time <span class="snippet">ros2 run ...</span> for every node you have to start, this is what you've been
 				waiting for.<br>
-				Here is the code of a simple ROS launch file, which starts two Turtlesim applications together.
+				Here is the code of a simple ROS launch file, which starts two Turtlesim applications together. You can copy this script and save it in a file called <span>turtlesim_mimic_launch.py</span>
 				
 			</p>
 
@@ -117,6 +117,12 @@ remappings=[
 			</pre>
 
 			remaps some topics of the node to different ones. This code will link the two spawned turtles together, making one turtle "mimic" another.<br><br>
+
+			If you want to try the Launch file we just wrote, you can use the following command:
+
+			<p class="code">
+				ros2 launch turtlesim_mimic_launch.py
+			</p>
 </p>
 		
 			<p class="subsection">Changing parameters at launch</p>
