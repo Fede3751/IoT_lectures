@@ -113,7 +113,7 @@
 				
 				A ROS workspace containing multiple packages would look something like this:
 
-				<p class="code">
+				<p>
 					workspace_folder/<br>
 					&emsp;&emsp;	src/<br>
 					&emsp;&emsp;&emsp;&emsp;	package_1/<br>
@@ -207,45 +207,45 @@
 
 				This is the code of the subscriber:
 
-				<p class="code">
-					import rclpy<br>
-					from rclpy.node import Node<br><br>
+				<pre>
+import rclpy
+from rclpy.node import Node
 
-					from std_msgs.msg import String<br><br><br>
-
-
-					class MinimalSubscriber(Node):<br><br>
-
-					&emsp;&emsp;	def __init__(self):<br>
-					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_subscriber')<br>
-					&emsp;&emsp;&emsp;&emsp;		self.subscription = self.create_subscription(<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			String,<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			'topic',<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			self.listener_callback,<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;			10)<br>
-					&emsp;&emsp;&emsp;&emsp;		self.subscription  # prevent unused variable warning<br><br>
-
-					&emsp;&emsp;	def listener_callback(self, msg):<br>
-					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('I heard: "%s"' % msg.data)<br><br><br>
+from std_msgs.msg import String
 
 
-					def main(args=None):<br>
-					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+class MinimalSubscriber(Node):
 
-					&emsp;&emsp;	minimal_subscriber = MinimalSubscriber()<br><br>
+    def __init__(self):
+	    super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
 
-					&emsp;&emsp;	rclpy.spin(minimal_subscriber)<br><br>
-
-					&emsp;&emsp;	# Destroy the node explicitly<br>
-					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
-					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
-					&emsp;&emsp;	minimal_subscriber.destroy_node()<br>
-					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+    def listener_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
 
 
-					if __name__ == '__main__':<br>
-					&emsp;&emsp;	main()
-				</p>
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_subscriber = MinimalSubscriber()
+
+    rclpy.spin(minimal_subscriber)
+
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+				</pre>
 
 				Let's stop for some time here and try to make some sense of what we are seeing. It should be kinda intuitive how the script works,
 				but it may be wise to take some time to have a more detailed overview on what the script does.<br><br>
@@ -346,47 +346,47 @@
 
 				Let's now take a look at the code of the publisher, and comment what is new:
 
-				<p class="code">
-					import rclpy<br>
-					from rclpy.node import Node<br><br>
+				<pre>
+import rclpy
+from rclpy.node import Node
 
-					from std_msgs.msg import String<br><br><br>
-
-
-					class MinimalPublisher(Node):<br><br>
-
-					&emsp;&emsp;	def __init__(self):<br>
-					&emsp;&emsp;&emsp;&emsp;		super().__init__('minimal_publisher')<br>
-					&emsp;&emsp;&emsp;&emsp;		self.publisher_ = self.create_publisher(String, 'topic', 10)<br>
-					&emsp;&emsp;&emsp;&emsp;		timer_period = 0.5  # seconds<br>
-					&emsp;&emsp;&emsp;&emsp;		self.timer = self.create_timer(timer_period, self.timer_callback)<br>
-					&emsp;&emsp;&emsp;&emsp;		self.i = 0<br><br>
-
-					&emsp;&emsp;	def timer_callback(self):<br>
-					&emsp;&emsp;&emsp;&emsp;		msg = String()<br>
-					&emsp;&emsp;&emsp;&emsp;		msg.data = 'Hello World: %d' % self.i<br>
-					&emsp;&emsp;&emsp;&emsp;		self.publisher_.publish(msg)<br>
-					&emsp;&emsp;&emsp;&emsp;		self.get_logger().info('Publishing: "%s"' % msg.data)<br>
-					&emsp;&emsp;&emsp;&emsp;		self.i += 1<br><br><br>
+from std_msgs.msg import String
 
 
-					def main(args=None):<br>
-					&emsp;&emsp;	rclpy.init(args=args)<br><br>
+class MinimalPublisher(Node):
 
-					&emsp;&emsp;	minimal_publisher = MinimalPublisher()<br><br>
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
 
-					&emsp;&emsp;	rclpy.spin(minimal_publisher)<br><br>
+    def timer_callback(self):
+        msg = String()
+        msg.data = 'Hello World: %d' % self.i
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.i += 1
 
-					&emsp;&emsp;	# Destroy the node explicitly<br>
-					&emsp;&emsp;	# (optional - otherwise it will be done automatically<br>
-					&emsp;&emsp;	# when the garbage collector destroys the node object)<br>
-					&emsp;&emsp;	minimal_publisher.destroy_node()<br>
-					&emsp;&emsp;	rclpy.shutdown()<br><br><br>
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_publisher = MinimalPublisher()
+
+    rclpy.spin(minimal_publisher)
+
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
 
 
-					if __name__ == '__main__':<br>
-					&emsp;&emsp;	main()
-				</p>
+if __name__ == '__main__':
+    main()
+				</pre>
 
 				The code is not so different from our subscriber node.<br><br>
 				
@@ -436,14 +436,14 @@
 				Let's do the same for this new package.<br>
 				Open <span class="snippet">setup.py</span>, and edit the line entry_points as follows:
 
-				<p class="code">
-					entry_points={<br>
-						&emsp;&emsp;	'console_scripts': [<br>
-						&emsp;&emsp;&emsp;&emsp;		'talker = py_pubsub.publisher_member_function:main',<br>
-						&emsp;&emsp;&emsp;&emsp;		'listener = py_pubsub.subscriber_member_function:main',<br>
-						&emsp;&emsp; ],<br>
-					},
-				</p>
+				<pre>
+entry_points={
+    'console_scripts': [
+        'talker = py_pubsub.publisher_member_function:main',
+        'listener = py_pubsub.subscriber_member_function:main',
+    ],
+},
+				</pre>
 
 				 <!-- In order for these new files to be found by <span class="snippet">ros2 run</span>, we will need to , as we did not give any information
 				about the nodes this time when we created the package.<br> -->
@@ -517,13 +517,13 @@
 
 						Then, what we need to do, is to change the function <span class="snippet">create_publisher()</span> as follows:
 
-						<p class="code">
-							self.publisher = self.create_publisher(<br>
-							&emsp;&emsp;	Twist,<br>
-							&emsp;&emsp;	'/turtle1/cmd_vel',<br>
-							&emsp;&emsp;	10<br>
-							)
-						</p>
+						<pre>
+self.publisher = self.create_publisher(
+    Twist,
+    '/turtle1/cmd_vel',
+    10
+)
+						</pre>
 
 						What we changed here is: the type of message of the topic, from <span class="snippet">String</span> to <span class="snippet">Twist</span>,
 						and the topic we are publishing to to <span class="snippet">/turtle1/cmd_vel</span> (from simply <span class="snippet">topic</span>).<br><br>
@@ -532,28 +532,28 @@
 
 						First, let's define outside the class the set of linear movements our turtle will take as follows:
 
-						<p class="code">
-							turtle_moves = [<br>
-							&emsp;&emsp;	Vector3(x=1.0, y=0.0, z=0.0),<br>
-							&emsp;&emsp;	Vector3(x=0.0, y=1.0, z=0.0),<br>
-							&emsp;&emsp;	Vector3(x=-1.0, y=0.0, z=0.0),<br>
-							&emsp;&emsp;	Vector3(x=0.0, y=-1.0, z=0.0)<br>
-							]
-						</p>
+						<pre>
+turtle_moves = [
+    Vector3(x=1.0, y=0.0, z=0.0),
+    Vector3(x=0.0, y=1.0, z=0.0),
+    Vector3(x=-1.0, y=0.0, z=0.0),
+    Vector3(x=0.0, y=-1.0, z=0.0)
+]
+						</pre>
 
 						This is a sequence of moves that will allow the turtle to perform a square path in our screen.<br>
 						All we need to do now is send these movements in order with our <span class="snippet">timer_callback()</span> function.<br><br>
 
 						The function should be something like this:
 
-						<p class="code">
-							def timer_callback(self):<br>
-							&emsp;&emsp;	msg = Twist()<br>
-							&emsp;&emsp;	msg.linear = turtle_moves[self.i%4]<br>
-							&emsp;&emsp;	msg.angular = Vector3(x=0.0, y=0.0, z=0.0)<br>
-							&emsp;&emsp;	self.i += 1<br>
-							&emsp;&emsp;	self.publisher.publish(msg)<br>
-						</p>
+						<pre>
+def timer_callback(self):
+    msg = Twist()
+    msg.linear = turtle_moves[self.i%4]
+    msg.angular = Vector3(x=0.0, y=0.0, z=0.0)
+    self.i += 1
+    self.publisher.publish(msg)
+						</pre>
 
 						What we are telling the program here, is to take one movement at time from our <span class="snippet">turtle_moves</span> array, and then publish
 						it to the previously created topic. The <span class="snippet">angular</span> movement is all set to zero, as we don't care about rotating the
