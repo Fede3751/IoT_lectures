@@ -239,7 +239,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 &#60;member_of_group&#62;rosidl_interface_packages&#60;/member_of_group&#62;
 			</pre>
 
-
 			That's it. Now it's time to use this interface in our own action server and client!
 
 		</p>
@@ -249,7 +248,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 
 		<p>
-			Let's now create a new package for our action. In your <span class="snippet">src</span> folder:
+			Let's now create a new package for our action. In your <span class="snippet">src</span>, alongside the <span class="snippet">action_tutorial_interfaces</span> folder, create a Python package
+			called <span class="snippet">fibonacci_action</span>with the usual command:
 
 			<p class="code">
 				ros2 pkg create --build-type ament_python fibonacci_action
@@ -551,7 +551,7 @@ if __name__ == '__main__':
 
             That's it!<br>
             With this, we have covered every single component of the ROS Graph, it's up to you to decide which best fits your project and workflow. It's time now to test everything
-			with one final, big, excercise.
+			with one final, big, exercise.
         
         
         </p>
@@ -601,6 +601,20 @@ def main():
 
             With this exercise, we say goodbye to our beloved turtle, as we will be moving to Gazebo from the next lecture.<br><br>
 
+		</p>	
+
+            <input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+            <div class="spoiler">
+                <div>
+					<p>
+						Solution not yet available.<br><br>
+
+						In a few days, some tips on how to calculate the right vectors and angles between two points will be given!
+					</p>
+				</div>
+			</div>
+
+		<p>
             The solution for this exercise will be available after the easter vacations, take your time! Some tips will be published midway!<br>
         </p>
 
