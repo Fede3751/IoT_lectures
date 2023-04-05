@@ -180,7 +180,7 @@ def generate_launch_description():
 
 			<!-- In terms of implementation, the idea behind an action is not so different from that of services: you have an action server and an action client.<br><br> -->
 
-			If you wish to implement your own action interface (which is usually the case, as actions are quite specific for the task they are thought for), you can create your own action interfaces just like for services.<br><br>
+			If you wish to implement your own action interface (which is usually the case, as actions are quite specific for the task they are thought for), you can create it just like for services and topics.<br><br>
 
 		</p>
 		<p class="subsection">Writing your own action interface</p>
@@ -215,7 +215,7 @@ def generate_launch_description():
 				int32[] partial_sequence
 			</p>
 
-			Here, we are writing an action which takes in input as a request an 32 bits integer, returns an array of integers when completed, and provides feedback with another array of integers.<br><br>
+			Here, we are writing an action which takes in input as a request a 32 bits integer, returns an array of integers when completed, and provides feedback with another array of integers.<br><br>
 
 			So, just like we did  in the last lecture, let's link this interface for the compiler and provide the appropriate depdendencies for it.<br><br>
 
@@ -459,10 +459,11 @@ if __name__ == '__main__':
             2. The interface message used for the action.<br>
             3. The name of the action.<br><br>
 
-            We then configure our <span class="snippet">send_goal()</span> function to create the goal with a given number, and send the request using the function <span class="snippet">send_goal_async()</span>.<br><br>
+            We then configure our <span class="snippet">send_goal()</span> function to create the goal with a given number, and use it to return the future of the
+			request created using the function <span class="snippet">send_goal_async()</span>.<br><br>
 
             In the main function, similarly to what we did for the service client, we crete the request, and then use the function <span class="snippet">spin_until_future_complete()</span>
-            to wait for the request to be completed.<br><br>
+            to wait for the request created by <span class="snippet">send_goal()</span> to be completed.<br><br>
 
             What if we want to read the result of the action, and also get feedback for it?<br><br>
 
@@ -549,7 +550,8 @@ if __name__ == '__main__':
             Finally, in the <span class="snippet">main()</span> function, we create our node and send the request to the action server.<br><br>
 
             That's it!<br>
-            With this, we have covered every single ROS structure that 
+            With this, we have covered every single component of the ROS Graph, it's up to you to decide which best fits your project and workflow. It's time now to test everything
+			with one final, big, excercise.
         
         
         </p>
@@ -568,7 +570,7 @@ if __name__ == '__main__':
 			<pre>
 from rclpy.executors import MultiThreadedExecutor
 
-#...your node here...
+#...your PatrollingActionServer node here...
 
 def main():
     rclpy.init(args=args)
@@ -588,8 +590,9 @@ def main():
 
 			Good luck!<br><br>
 
-			Some examples of an execution of the patrolling action. Depending on how you decide to do it, your turtle may perform smooth paths between points, or rotate before and then move.
-			Also not rotating at all is a solution, if you are having an hard time coming up with the solution.
+			Here are some examples of an execution of the patrolling action. Depending on how you decide to do it, your turtle may perform smooth paths between points, or rotate before and then move.
+			Also not rotating at all is ok, if you are having an hard time coming up with the solution, but please bear in mind that such solution may not work if you try to move robots with wheels
+			(which cannot move sideways), so you will eventually have to face that problem, if you plan on working with ROS in the future.
 
 		</p>
 			<img class="centered" src="./imgs/lecture_4/patrolling_turtle.png"><img class="centered" src="./imgs/lecture_4/patrolling_turtle_smooth.png">
@@ -619,7 +622,7 @@ def main():
 
 			Gazebo is a completely independent program from ROS, but just like ROS, uses topics to pass information between the models in its simulation.<br>
 			Piloting a robot inside Gazebo is as simple as moving our turtle (with the added complexity of a third component in the movement space),
-			all we need to do is bridge the topics from Gazebo to ROS, and that we'll do the trick! This is what we will do in the next lecture!<br><br>
+			all we need to do is bridge the topics from Gazebo to ROS, and that will do the trick! This is what we will do in the next lecture!<br><br>
 
 			See you soon!
 
