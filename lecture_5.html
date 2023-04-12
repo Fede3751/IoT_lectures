@@ -49,7 +49,7 @@
                 Once you do that, we can start an empty world by typing:
 
                 <p class="code">
-                    ign gazebo defaut.sdf
+                    ign gazebo default.sdf
                 </p>
 
                 This will create an empty world, which we will use to get more confident with the enviroment of Gazebo.<br><br>
@@ -434,6 +434,10 @@
             </p>
 
             to list services.<br><br>
+
+            Note that in Gazebo, you can only list topics that have a publisher for it. If you have a topic with only subscribers, that topic won't show in your
+            list. If you are unsure of what services to bridge from a plugin and they don't appear in your list, please refer to the official plugin documentation
+            too see what topics are correct (most plugins have a default topic, which can be redefined with a particular tag).
 
             To get info about a topic, can type:
 
