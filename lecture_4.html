@@ -613,22 +613,37 @@ def main():
             <div class="spoiler">
                 <div>
 					<p>
-						How is it going?<br><br>
+						Solution is here!<br><br>
 
-						While the full solution is not available, the following file should help a little.<br>
-						Feel free to take a look: <a href="./exercise_solutions/exercise_5/math_utils.py">math_utils.py</a>.<br><br>
+						If you still want some help but don't want the full solution, this file may help you a little <a href="./exercise_solutions/exercise_5/math_utils.py">math_utils.py</a>.<br><br>
 
-						The file should be particularly of help if you are having problems with moving the turtle in the right direction.<br><br>
+						Now, onto the full solution:<br>
+						The file for the action interface is this one: <a href="./exercise_solutions/exercise_5/PatrolCommandInterface.action">PatrolCommandInterface.action</a>.<br>
+						The file for the action script instead: <a href="./exercise_solutions/exercise_5/patrol_command.py">patrol_command.py</a>.<br><br>
 
-						Full solution will be available later!
+						The interface should be in a C++ package called <span class="snippet">patrol_interfaces</span>. If you change that remember to rename it in your
+						action script also.<br>
+						The solution is fully commented in the action file.<br><br>
+
+						The script consists of two main functions: one to rotate the turtle, and one to move the turtle towards the next target.<br>
+						Using the appropriate functions given in <span class="snippet">math_utils.py</span>, we are able to compute both the angle and the distance between
+						the turtle current position (known by listening to the <span class="snippet">turtle1/pose</span>), and the target position. We then send move messages to
+						<span class="snippet">turtle1/cmd_vel</span> accordingly.<br><br>
+
+						For the exact values of these, please refer to the solution file.<br><br>
+
+						Action client is not provided. You may send a goal to your action with the following command (example with some points already set):
+						<p class="code">
+							ros2 action send_goal /command_turtle patrol_interfaces/action/PatrolCommandInterface "targets: [{x: 9.0, y: 7.0, z: 0.0}, {x: 5.0, y: 1.0, z: 0.0}, {x: 1.0, y: 7.0, z: 0.0}, {x: 2.0, y: 9.0, z: 0.0}]" --feedback
+						</p>
+
+						This should move the turtle like this:
+
+						<img class="centered" src="./imgs/lecture_4/patrol_solution.png">
+
 					</p>
 				</div>
 			</div>
-
-		<p>
-            The solution for this exercise will be available after the easter vacations, take your time! Some tips will be published midway!<br>
-        </p>
-
 
 		<p class="section">Conclusions</p>
 
