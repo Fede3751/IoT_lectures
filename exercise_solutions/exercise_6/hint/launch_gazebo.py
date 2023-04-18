@@ -5,8 +5,9 @@ from launch_ros.substitutions import FindPackageShare
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
+from random import randint
 
-WORLD_NAME = "vehicle_blue_world"
+WORLD_FILE = "vehicle_blue_world.sdf"
 
 def generate_launch_description():
 
@@ -21,30 +22,8 @@ def generate_launch_description():
           ])
         ]),
         launch_arguments={
-          'gz_args' : "./%s.sdf" % WORLD_NAME
+          'gz_args' : "./"+WORLD_FILE
         }.items()
-      ),
-      Node(
-        package="ros_gz_bridge",
-        executable="parameter_bridge",
-        arguments=[
-          "/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist"
-        ]
-      ),
-      Node(
-        package="ros_gz_bridge",
-        executable="parameter_bridge",
-        arguments=[
-          "/world/%s/control@ros_gz_interfaces/srv/ControlWorld" % WORLD_NAME
-        ]
-      ),
-      Node(
-        package='bridge_exercise',
-        executable='vehicle_controller'
       )
-
-
     ]
   )
-
-

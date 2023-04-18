@@ -405,6 +405,8 @@
 
                 <img class="centered" src="./imgs/lecture_5/broom.gif">
 
+                The resulting sdf file for this part can be downloaded directly here: <a href="./exercise_solutions/exercise_6/vehicle_blue_world.sdf">vehicle_blue_world.sdf</a>.<br><br>
+
                 For what was covered in this part, these links may come in hand as future reference:<br>
                 -Official SDF documentation: <a href="http://sdformat.org/spec?ver=1.9">here</a>.<br>
                 -List of all the plugins installed by default with Gazebo, with their source: <a href="https://github.com/gazebosim/gz-sim/tree/gz-sim7/src/systems">here</a>.<br>
@@ -503,7 +505,7 @@
             <span class="snippet">Node</span> object.<br><br>
             Feel free to take a look at the previous lecture to see how launch files are written.<br><br>
 
-            To help you get started, this launch file will immediately start Gazebo when run: <a href="./exercise_solutions/exercise_6/launch_gazebo.py">launch_gazebo.py</a><br>
+            To help you get started, this launch file will immediately start Gazebo when run: <a href="./exercise_solutions/exercise_6/hint/launch_gazebo.py">launch_gazebo.py</a><br>
             <span class="snippet">ros_gz_bridge</span> currently supports bridge for only one service, which is the one we need to start and stop the simulation.<br>
             Refer to the example on the GitHub page to find out how to do that.<br><br>
 
@@ -516,8 +518,13 @@
         <div class="spoiler">
             <div>
                 <p>
-                    Solution not discussed in class yet.<br>
-                    Will be available here later this week.
+                    So, this exercise was here for you to get used to bridging nodes using launcher files.<br>
+                    The exercise itself shouldn't have been that hard to complete, after you managed to setup your launch file to start all the bridges
+                    and your node.<br><br>
+
+                    The solution for the launch file is the following: <a href="">launch_gazebo.py</a><br>
+                    This is the file for controlling the vehicle: <a href="">vehicle_controller.py</a><br>
+                    The sdf file we're using for the world is the same produced by the lecture, which is the following: <a href="">vehicle_blue_world.sdf</a>
                 </p>
             </div>
         </div>
