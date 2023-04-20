@@ -1,0 +1,270 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 6 - 20/04/2023 </p>
+
+			<div class="divider"></div>
+
+            <p>            
+                In this lecture, we are going to look on how you can pilot an X3 drone inside of Gazebo.<br>
+                Taking as an example the solution from the patrolling turtle exercise, we will build a similar solution,
+                which also takes into account the 3rd dimension.<br><br>
+
+                This lecture is going to be more interactive than usual, and will consist of different exercises one after
+                another.<br>
+                Each exercise will start from where the previous left off, and shoud guide you through your first script
+                which controls an X3 drone.<br><br>
+
+                There won't be any new ROS or Gazebo concepts explained here. All we have covered so far should have given you the basis
+                to do what we will cover in this lecture.<br>
+                The math involeved is, though, a little bit more complicated than what we have seen so far, so it may be
+                helpful to see how everything is done with a dedicated lecture.
+            </p>
+
+
+            <p class="section">Exercise 8a - Groundplay for our Drone</p>
+
+            <p>
+                Before getting into programming our drone. It would be a good idea to start modelling our world where
+                we will pilot our drone.<br><br>
+
+                What to do:<br><br>
+                    -Import the proget <span class="snippet">multicopter_velocity_control.sdf</span>, remove the X4 drone,
+                    and save the project. This will be the world we will use to pilot our X3.<br><br>
+                    -Create a launch file to bridge the controls of X3
+                    (there is one topic for <span class="snippet">cmd_vel</span> and one for topic for <span class="snippet">odometry</span>, take a look at your sdf
+                    and the documentation of the plugins used to find which topics you will have to bridge).
+
+                    <img class="centered" src="./imgs/lecture_6/x3_world.png">
+    
+            </p>
+
+            <p class="section">Exercise 8b - Taking off</p>
+
+            <p>
+                It's time for our drone to fly!<br><br>
+                
+                Here, you should start by implementing a function which allows the drone to reach a required altitude, when requested.<br><br>
+
+                With the step before done, you should have already an <span class="snippet">odometry</span> topic publishing the position of your drone
+                (remember that no coordinates are published if the simulation is not playing). Use what we have learnt so far with ROS commands to study the
+                interface it uses, and save those coordinates on your code!
+
+                <img class="centered" src="./imgs/lecture_6/x3_taking_off.png">
+            </p>
+
+
+            <p class="section">Exercise 8c - Facing a point</p>
+
+            <p>
+                Now it's time for our drone to rotate.<br>
+                When requested, the drone should face a given point in space.<br><br>
+
+                It is time here to talk about rotations in a 3D space.<br>
+                Up until now, we have seen rotation only in a 2D plane.<br>
+                Rotation on a plane have only one degree of freedom, which is on the z-axis, perpendicular to the plane.<br>
+                In a 3D space, the possible rotations are instead three: yaw, pitch, and roll.<br><br>
+
+
+                <img class="centered" src="./imgs/lecture_6/yaw_pitch_roll.png">
+
+                In the past lectures' exercises we have seen rotations applied to our <i>beloved</i> turtle. To do that, we used euler angles,
+                which are a mathematical structure familiar to all of us since highschool. It's what we always used.<br>
+                In 3D spaces though, euler angles are usually not the best choice to describe rotations.<br><br>
+
+                There are various reason for that, and if you're asking what they are, it is exactly what we are gonna answer here, before introducing
+                the commonly preferred alternative.<br><br>
+
+                The good thing about euler angles is that they're intuitive: everyone can eyeball the extension of an angle with their hand just by
+                reading their values. The same thing cannot be said to other representations.<br>
+                That end the good parts.<br><br>
+
+                Euler angles are not pratical for describing rotations because they can be ambiguos: i.e, a rotation of -60° is,
+                after applied, equal to a rotation of 300°. Even if the state they end up is the same, the actual rotation performed
+                is considerably different.<br>
+                This creates ambiguity in the euler angle representation, as equal angles may represent different rotations.<br><br>
+
+                The other reason is that rotating objects using euler angles may lead to the loss of one degree of freedom.<br>
+                This phenomenon, which is called "gimbal lock", happens when one rotation plane aligns with another.<br>
+                The figure below may help you figure out what happens.<br><br>
+
+                In order to prevent this phenomenon, appropriate rotations, with an external frame of reference,
+                have to be applied to "unlock" the rotating object.<br><br>
+
+                Euler angles can be good to convey the information of an orientation, but not for the rotation that lead to such orientation.
+<!-- 
+                The most commons one being:<br>
+                -Angle of Rotation<br>
+                -Complex Numbers in 2D, Quaternions in 3D<br>
+                -Rotation Matrix<br><br>
+
+                But why are we talking about all of this? And not just stick with angles that work just fine also in 3D?<br>
+                Well, because they don't.<br><br>
+
+                Angles are really good at describing intuitively the angle of a given object, but are, in fact, terrible for 
+                tracking their rotation:<br>
+                angles do not have a unique representation, i.e., an angle of -60° might have been produced by a rotation of
+                300 positive degrees, which one was the movement that made us reach the current rotation?<br>
+                There is no way to tell only by looking at the angle.<br><br>
+                
+                Additionally, angles are subject to gimbal lock! What it is?<br>
+                It is a phenomenon that happens when two axis align after a rotation. The sad result of this happening
+                is that, once the two align, the object loses one degree of freedom, until the proper rotation is applied to
+                "unlock" it.<br> -->
+
+
+                <img class="centered" src="./imgs/lecture_6/gimbal_lock.gif">
+
+                For these reasons (and more), in 3D spaces, rotations are usually described using another mathematical structure: quaternions.<br><br>
+
+                By using only an additional variable, quaternions are able to accurately describe rotations in an unambiguous way, and allow
+                us to perform multiple rotations with simple moltiplicatons (simple for a machine, not for us).<br><br>
+
+                I'm going to stop here. The math behind quaternions is really complex and approaching it can be a daunting task.
+                If you think you are going to work with 3D spaces in the future, it is imperative to understand quaternions and how they
+                perform rotations to a given direction vector, but, for the time being, it won't be necessary.<br><br>
+
+                The truth is that, due to the way a quadcopter (just like our X3 drone) moves, at the end of the day the only rotation we are actively
+                able to controll is the yaw.<br>
+
+                Drones perform pitch and roll rotations to move linearly, but those movements are performed automatically by our drone thanks to the 
+                <span class="snippet">MulticopterVelocityControl</span> plugin, which allows us to control the drone using the <span class="snippet">cmd_vel</span> topic.<br>
+                Linear movements that we send to it get automatically translated to proper rotations, which control the drone accordingly to our commands.<br><br>
+
+                This leaves us with only the yaw angle to control, which makes all that mess that are 3D rotations with quaternions shockingly simple.<br><br>
+
+                Do you want to rotate your drone? All you have to do is convert the rotation quaternion that our <span class="snippet">odometry</span>
+                topic publishes to euler angles, and get the angle of the yaw axis. That's it!<br><br>
+
+                The following function will take in input a quaternion, and return the corresponding angles on all three axis:
+
+                <pre>
+def euler_from_quaternion(x, y, z, w):
+    
+    """
+    Convert a quaternion into euler angles (roll, pitch, yaw)
+    roll is rotation around x in radians (counterclockwise)
+    pitch is rotation around y in radians (counterclockwise)
+    yaw is rotation around z in radians (counterclockwise)
+    """
+
+    t0 = +2.0 * (w * x + y * z)
+    t1 = +1.0 - 2.0 * (x * x + y * y)
+    roll_x = math.atan2(t0, t1)
+
+    t2 = +2.0 * (w * y - z * x)
+    t2 = +1.0 if t2 &gt; +1.0 else t2
+    t2 = -1.0 if t2 &lt; -1.0 else t2
+    pitch_y = math.asin(t2)
+
+    t3 = +1.0 - 2.0 * (y * y + z * z)
+    t4 = +2.0 * (w * z + x * y)
+    yaw_z = math.atan2(t3, t4)
+
+    return roll_x, pitch_y, yaw_z # in radians
+                </pre>
+
+                Use it to complete this part of the exercise!<br><br>
+
+                Good luck!<br><br>
+
+                <img class="centered" src="./imgs/lecture_6/x3_rotate.png">
+
+
+                If you want to know more about quaternions, these link will explain them to you way better than I could:<br><br>
+
+                <a href="https://www.youtube.com/watch?v=d4EgbgTm0Bg">Visualizing quaternions (4d numbers) with stereographic projection</a><br>
+                <a href="https://www.youtube.com/watch?v=zjMuIxRvygQ">Quaternions and 3d rotation, explained interactively</a><br>
+                <a href="https://www.youtube.com/watch?v=xoTqBqQtrY4">Basic Intro to Quaternions for 3D Rotations</a><br>
+                <a href="https://www.youtube.com/watch?v=jTgdKoQv738">How quaternions produce 3D rotation</a>
+
+
+
+            </p>
+
+
+            <p class="section">Exercise 8d - Moving towards a point</p>
+
+            <p>
+
+                Now that the drone is facing the point, it should move towards it.<br><br>
+
+                Moving in a 3D space can get quite confusing when working in 3D spaces.<br>
+                Theoretically, in order to find the movement vector, you would have to calculate
+                the vector between the two points in space and then rotate it using the drone as
+                a frame of reference.<br><br>
+
+                In practice, we won't need to do that: if you did the previous step, it means that the 
+                drone is already facing the target, so it only has to move in two directions to reach it:
+                forward and up/down.<br><br>
+
+                If you manage to find the 2D vector in this plane, your drone will move correctly. Give it a try!<br><br>
+
+                Assuming that the movement is described by a vector (x,z), we are interested in the absolute value of x
+                (as we want to move the drone always forward), and the value of z (not absolute, we want negatives values here,
+                as the drone may need to fly to a lower point to reach its target).<br><br>
+
+
+                <img class="centered" src="./imgs/lecture_6/x3_move.png">
+
+            </p>
+
+
+            <p class="section">Exercise 8e - Patrolling</p>
+            
+            <p>
+
+                We have everything ready to move the drone from point A to point B.<br><br>
+
+                Can we generalize that approach to a set of points? And move from one point to another in a given order?<br>
+                You should just iterate what we have built so far over a set of points. Give it a try!
+
+                <img class="centered" src="./imgs/lecture_6/x3_targets.png">
+
+            </p>
+
+            <p class="section">Exercise 8f - Swarming</p>
+            
+            <p>
+                Everything is ready.<br><br>
+
+                What you are requested here, is to edit your world sdf file to spawn two additional drones.<br><br>
+
+                By working with remappings and/or namespaces in your launch file, your code should control the three drones to perform the patrolling
+                task for each of them.<br><br>
+
+                <img class="centered" src="./imgs/lecture_6/x3_swarming.gif">
+            </p>
+
+            <p class="section">Conclusions</p>
+
+            <p>
+                We are done.<br>
+                The code written in this lecture will be the starting point of your project.<br><br>
+
+                The complete solution to all the exercises proposed here will be available with the project the next week, along with other scripts
+                that will allow you to visually see the targets just like in the pictures used for this lecture.<br><br>
+
+                See you soon!
+            </p>
+
+            <!-- <p class="section">Understanding drones and moving in a 3D space</p>
+            <p>
+                Moving objects in a 3D space can be really hard with no prior-knowledge.
+                With the addition of a third dimension, rotations have now three possible axis, instead of simply one.<br>
+
+                
+            </p>
+                 -->
+
+
+            <div class="to_be_continued"></div> 
+            
+        </div>
+    </body>
+</html>
+
+            
