@@ -186,70 +186,6 @@ def euler_from_quaternion(x, y, z, w):
             </p>
 
 
-            <p class="section">Exercise 8d - Moving towards a point</p>
-
-            <p>
-
-                Now that the drone is facing the point, it should move towards it.<br><br>
-
-                Moving in a 3D space can get quite confusing when working in 3D spaces.<br>
-                Theoretically, in order to find the movement vector, you would have to calculate
-                the vector between the two points in space and then rotate it using the drone as
-                a frame of reference.<br><br>
-
-                In practice, we won't need to do that: if you did the previous step, it means that the 
-                drone is already facing the target, so it only has to move in two directions to reach it:
-                forward and up/down.<br><br>
-
-                If you manage to find the 2D vector in this plane, your drone will move correctly. Give it a try!<br><br>
-
-                Assuming that the movement is described by a vector (x,z), we are interested in the absolute value of x
-                (as we want to move the drone always forward), and the value of z (not absolute, we want negatives values here,
-                as the drone may need to fly to a lower point to reach its target).<br><br>
-
-
-                <img class="centered" src="./imgs/lecture_6/x3_move.png">
-
-            </p>
-
-
-            <p class="section">Exercise 8e - Patrolling</p>
-            
-            <p>
-
-                We have everything ready to move the drone from point A to point B.<br><br>
-
-                Can we generalize that approach to a set of points? And move from one point to another in a given order?<br>
-                You should just iterate what we have built so far over a set of points. Give it a try!
-
-                <img class="centered" src="./imgs/lecture_6/x3_targets.png">
-
-            </p>
-
-            <p class="section">Exercise 8f - Swarming</p>
-            
-            <p>
-                Everything is ready.<br><br>
-
-                What you are requested here, is to edit your world sdf file to spawn two additional drones.<br><br>
-
-                By working with remappings and/or namespaces in your launch file, your code should control the three drones to perform the patrolling
-                task for each of them.<br><br>
-
-                <img class="centered" src="./imgs/lecture_6/x3_swarming.gif">
-            </p>
-
-            <p class="section">Conclusions</p>
-
-            <p>
-                We are done.<br>
-                The code written in this lecture will be the starting point of your project.<br><br>
-
-                The complete solution to all the exercises proposed here will be available with the project the next week, along with other scripts
-                that will allow you to visually see the targets just like in the pictures used for this lecture.<br><br>
-
-                See you soon!
-            </p>
 
             <!-- <p class="section">Understanding drones and moving in a 3D space</p>
             <p>
@@ -259,6 +195,15 @@ def euler_from_quaternion(x, y, z, w):
                 
             </p>
                  -->
+
+            <p class="section">Conclusions</p>
+
+            <p>
+                This ends the first part of this series of exercises.<br>
+                If you want to continue with exercises on your own, the next lecture is already available for you to test yourself.<br><br>
+
+                Good luck!
+            </p>
 
 
             <div class="to_be_continued"></div> 
