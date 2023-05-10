@@ -1,0 +1,230 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 9 - 10/05/2023 </p>
+
+			<div class="divider"></div>
+
+
+
+            <p class="section">Adding a lidar sensor to a Gazebo robot</p>
+
+            <p>
+                Let's go back to the robot we made in Lecture 5.<br>
+                You can find the file for the vehicle world here: <a href="./exercise_solutions/exercise_6/vehicle_blue_world.sdf">vehicle_blue_world.sdf</a>
+
+                <img class="centered" src="./imgs/lecture_5/robot_1.png">
+
+                What if instead of simply moving our robot, we would want it to scan the area around? So that it can move in a "smart" way,
+                and avoid obstacles?<br>
+                To do that, we can add a <span class="snippet">&lt;sensor&gt;</span> tag to our robot.<br><br>
+    
+                By using this tag, we will add a "light detection and ranging" (lidar) sensor to our robot.<br><br>
+    
+                First of all, let's add a wall to our world, so that we can test the functionality of the sensor later on.<br><br>
+                Use this code alongside your vehicle model:
+    
+                <pre>
+    &lt;model name='wall'&gt;
+        &lt;static&gt;true&lt;/static&gt;
+        &lt;pose&gt;5 0 0 0 0 0&lt;/pose&gt;&lt;!--pose relative to the world--&gt;
+        &lt;link name='box'&gt;
+            &lt;pose/&gt;
+            &lt;visual name='visual'&gt;
+                &lt;geometry&gt;
+                    &lt;box&gt;
+                        &lt;size&gt;0.5 10.0 2.0&lt;/size&gt;
+                    &lt;/box&gt;
+                &lt;/geometry&gt;
+                &lt;!--let's add color to our link--&gt;
+                &lt;material&gt;
+                    &lt;ambient&gt;0.0 0.0 1.0 1&lt;/ambient&gt;
+                    &lt;diffuse&gt;0.0 0.0 1.0 1&lt;/diffuse&gt;
+                    &lt;specular&gt;0.0 0.0 1.0 1&lt;/specular&gt;
+                &lt;/material&gt;
+            &lt;/visual&gt;
+            &lt;collision name='collision'&gt;
+                &lt;geometry&gt;
+                    &lt;box&gt;
+                        &lt;size&gt;0.5 10.0 2.0&lt;/size&gt;
+                    &lt;/box&gt;
+                &lt;/geometry&gt;
+            &lt;/collision&gt;
+        &lt;/link&gt;
+    &lt;/model&gt;
+                </pre>
+    
+                Now, under the <span class="snippet">&lt;world&gt;</span> tag, add these three plugins, which will be necessary for the lidar scanner to work:
+    
+                <pre>
+    &lt;plugin
+        filename="ignition-gazebo-physics-system"
+        name="ignition::gazebo::systems::Physics"&gt;
+    &lt;/plugin&gt;
+    &lt;plugin
+        filename="ignition-gazebo-scene-broadcaster-system"
+        name="ignition::gazebo::systems::SceneBroadcaster"&gt;
+    &lt;/plugin&gt;
+    &lt;plugin filename="ignition-gazebo-sensors-system"
+            name="ignition::gazebo::systems::Sensors"&gt;
+        &lt;render_engine&gt;ogre2&lt;/render_engine&gt;
+    &lt;/plugin&gt;
+                </pre>
+    
+                Once you've done that, we're going first to add a frame for our lidar scanner. This should go above your <span class="snippet">chassis</span> link.
+    
+                <pre>
+    &lt;frame name="lidar_frame" attached_to='chassis'&gt;
+        &lt;pose&gt;0.8 0 0.5 0 0 0&lt;/pose&gt;
+    &lt;/frame&gt;
+                </pre>
+    
+                And this, inside of the <span class="snippet">chassis</span> link.
+    
+                <pre>
+    &lt;sensor name='gpu_lidar' type='gpu_lidar'&gt;
+        &lt;pose relative_to='lidar_frame'&gt;0 0 0 0 0 0&lt;/pose&gt;
+        &lt;topic&gt;lidar&lt;/topic&gt;
+        &lt;update_rate&gt;10&lt;/update_rate&gt;
+        &lt;ray&gt;
+            &lt;scan&gt;
+                &lt;horizontal&gt;
+                    &lt;samples&gt;640&lt;/samples&gt;
+                    &lt;resolution&gt;1&lt;/resolution&gt;
+                    &lt;min_angle&gt;-1.396263&lt;/min_angle&gt;
+                    &lt;max_angle&gt;1.396263&lt;/max_angle&gt;
+                &lt;/horizontal&gt;
+                &lt;vertical&gt;
+                    &lt;samples&gt;1&lt;/samples&gt;
+                    &lt;resolution&gt;0.01&lt;/resolution&gt;
+                    &lt;min_angle&gt;0&lt;/min_angle&gt;
+                    &lt;max_angle&gt;0&lt;/max_angle&gt;
+                &lt;/vertical&gt;
+            &lt;/scan&gt;
+            &lt;range&gt;
+                &lt;min&gt;0.08&lt;/min&gt;
+                &lt;max&gt;10.0&lt;/max&gt;
+                &lt;resolution&gt;0.01&lt;/resolution&gt;
+            &lt;/range&gt;
+        &lt;/ray&gt;
+        &lt;always_on&gt;1&lt;/always_on&gt;
+        &lt;visualize&gt;true&lt;/visualize&gt;
+    &lt;/sensor&gt;
+                </pre>
+    
+    
+                That'it! If you start your simulation again you should have a Gazebo topic called <span class="snippet">/lidar</span> which publishes the data of the lidar scanner.<br><br>
+
+                The edited file for the Gazebo world is the following: <a href="./exercise_solutions/extra_exercise_1/vehicle_blue_lidar.sdf">vehicle_blue_lidar.sdf</a>
+    
+            </p>
+            <p class="section">Using the lidar to scan an area</p>
+            <p>
+                One cool thing about lidar scanner is that they can be used to create a 3d map of the environment around our robot. This information, combined with ROS coding, allows you to create
+                "smart" robots which can navigate complex areas with multiple obstacles.<br><br>
+    
+                This won't be needed for the rest of the course, but if you want to see the information being captured live by your scanner, we can use a tool which comes with ROS called
+                <span class="snippet">rviz2</span>. Just simply type the name of the application on a new sourced terminal, and you should be prompted with a view like this:
+    
+                <img class="centered" src="./imgs/lecture_5/rviz2_start.png">
+    
+                To view our information collected thanks to our lidar scanner, we first have to bridge that topic to ROS.
+    
+                <p class="code">
+                    ros2 run ros_gz_bridge parameter_bridge /lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan
+                </p>
+    
+                After that. We can add the <span class="snippet">/lidar</span> topic to our Rviz applcation.<br>
+                Just click the Add button on the bottom left corner, then go to the "By topic" tab and add the <span class="snippet">/lidar</span> topic.
+    
+                <img class="centered" src="./imgs/lecture_5/lidar_select.png">
+    
+                After that, all we need to do is to fix our frame of reference to our lidar sensor, and that will do the trick. Our frame needs to point to our lidar scanner, like this:
+    
+                <img class="centered" src="./imgs/lecture_5/fixed_frame.png">
+    
+                Some red dots should start appearing on your screen. They are the points that the lidar scanner is currently hitting in the simulated environment.
+    
+                <img class="centered" src="./imgs/lecture_5/rviz_scanned.png">
+    
+                <br>
+                If you want to go more into details on how you can map your enviornment, you may want to look on how to define a fixed frame in your simulation, so that the information of 
+                the rays can be stored with respect to the fixed frame, thus creating a 3D map of the scanned area.<br><br>
+    
+                We're only interested in collecting data to account for simple collisions at this point, so that won't be a requirement.<br><br>
+    
+                Let's now try to use the data collected by the lidar scanner to prevent the robot from hitting the wall.<br><br>
+
+    
+                
+            </p>
+    
+            <p class="section">Extra Exercise - Don't hit the wall!</p>
+    
+            <p>
+                You are here requested to modify the code of the previous exercise as follows: the vehicle must now move towards the wall, and stop when it gets too close.<br><br>
+    
+                The lidar scanner sends multiple rays in front of him to detect for an incoming collision. You can read the ranges of all those rays by reading the values of
+                <span class="snippet">.ranges</span> inside of a <span class="snippet">LaserScan</span> message.
+    
+                <img class="centered" src="./imgs/lecture_5/dont_hit_the_wall.png">
+                
+            </p>
+            
+            <input class="spoilerbutton" type="button" value="Show" onclick="this.value=this.value=='Show'?'Hide':'Show';">
+            <div class="spoiler">
+                <div>
+                    <p>
+                        Solution not discussed in class yet.<br>
+                        Will be available here later this week.
+                    </p>
+                </div>
+            </div>
+
+
+            <p class="section">Project Brainstorming: Fair vs Unfair Task</p>
+
+            <p>
+                You are given two simulation instances for you to test your project solution.<br>
+                The two simulation are exactly the same, except for one single value: the weight given to the fairness.<br><br>
+
+                With that said, how would you approach this instance? Note that some targets are really far away from each other, you may not be able to monitor
+                everything with only the two drones given.<br>
+                In one instance though, being fair is going to give you a considerate reward.<br><br>
+
+                Is it still worth it to completely forget about that far away target?<br><br>
+
+                Pull the Project repository to get these new instances!<br><br>
+
+
+                
+
+                <img class="centered" src="./imgs/lecture_9/far_away.png">
+            </p>
+
+            
+            <p class="section">Conclusions</p>
+
+            <p>
+                This concludes our first project lecture!<br><br>
+
+                All the simulation files used in the brainstorming part have been published in the Git repository of the project. Pull the new version, and you will also have the score calculation
+                ready for you!<br>
+                Wind is also now implemented in your simulation, feel free to play with it in your own instances!<br><br>
+
+                That will be the main focus of our next brainstorming session!<br><br>
+
+                See you soon!
+            </p>
+
+
+            <div class="to_be_continued"></div> 
+            
+        </div>
+    </body>
+</html>
+
+            
