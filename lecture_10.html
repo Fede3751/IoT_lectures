@@ -1,0 +1,261 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<p class="title"> IoT Lab Lecture 10 - 18/05/2023 </p>
+
+			<div class="divider"></div>
+
+
+            <p>
+                In this lecture, we are going to see briefly how you can add a camera to a Gazebo robot.<br><br>
+                We will use the data published by the camera in a node to display the image to the screen using the OpenCV libraries.<br><br>
+
+                After that, we will spend some time brainstorming with the project, by trying new simulation instances that uses wind!
+
+            </p>
+
+            <p class="section">Adding a camera sensor to a Gazebo robot</p>
+
+            <p>
+                Let's continue building on top of the robot we built during the last lecture. This time, we will add a sensor camera.<br><br>
+
+                The model, modified from the last lecture, is available here: <a href="./exercise_solutions/extra_exercise_1/vehicle_blue_lidar.sdf">vehicle_blue_lidar.sdf</a><br><br>
+
+                First of all, let's add the camera sensor to our robot.<br>
+                There is no need to import additional plugins, as we have already imported the <span class="snippet">ignition-gazebo-sensors-system</span> last time in order for our
+                lidar sensor to work, the camera will use the same one.<br><br>
+
+                Similarly to like we did for the lidar sensor, we can define the camera sensor in the same way, just by adding the following tags in our <span class="snippet">chassis</span> link:
+            
+            </p>
+
+            <pre>
+&lt;sensor name="camera" type="camera"&gt;
+    &lt;pose relative_to='lidar_frame'&gt;0 0 0 0 0 0&lt;/pose&gt;
+    &lt;topic&gt;camera&lt;/topic&gt;
+    &lt;camera&gt;
+        &lt;box_type&gt;3d&lt;/box_type&gt;
+        &lt;horizontal_fov&gt;1.047&lt;/horizontal_fov&gt;
+        &lt;image&gt;
+            &lt;width&gt;800&lt;/width&gt;
+            &lt;height&gt;600&lt;/height&gt;
+        &lt;/image&gt;
+        &lt;clip&gt;
+            &lt;near&gt;0.1&lt;/near&gt;
+            &lt;far&gt;10&lt;/far&gt;
+        &lt;/clip&gt;
+    &lt;/camera&gt;
+    &lt;always_on&gt;1&lt;/always_on&gt;
+    &lt;update_rate&gt;30&lt;/update_rate&gt;
+    &lt;visualize&gt;true&lt;/visualize&gt;
+&lt;/sensor&gt;
+            </pre>
+
+
+            <p>
+                This will create a new gazebo topic <span class="snippet">/camera</span> which publishes the camera image at the specified rate. This image can be easily bridged to ros using the 
+                <span class="snippet">ros_gz</span> tools. Before doing that though, let's see if everything works in the Gazebo part.<br><br>
+
+                To test our camera, we can lunch a plugin called Image Display in Gazebo. Which should show you something like this:
+
+                <img class="centered" src="./imgs/lecture_10/gazebo_image_display.png">
+
+                Try to also spawn the Teleop plugin and move around your robot. You should get a live feed from the camera in the image frame.
+            </p>
+
+            <p class="section">Bridging the image feed</p>
+
+            <p>
+                Now that everything is working in the Gazebo part, is time to bridge everything to ROS so that you can start implementing your solution using everything we have seen so far.<br>
+                To do that, there is a tool in the <span class="snippet">ros_gz</span> package that we will use to create the bridge, similarly to what we have seen with topics and services.<br><br>
+
+                To bridge the image feed on our <span class="snippet">/camera topic</span>, you can simply type:
+
+                <p class="code">
+                    ros2 run ros_gz_image image_bridge /camera
+                </p>
+
+                That's it, the image is now bridged in ROS and ready to be used in your code.<br>
+                You can verify if your bridge is correctly working by using a particular tool in ROS to visualize Image messages, for our case:
+
+                <p class="code">
+                    ros2 run image_tools showimage image:=camera
+                </p>
+
+                If you are getting a live feed from the robot camera, everything is working fine so far.
+
+                <img class="centered" src="./imgs/lecture_10/image_tools.png">
+
+                The same image feed can also be viewed inside rviz2 to have everything under one single view.<br>
+                Adding our camera to an rviz2 window is not so different from adding a lidar sensor.
+
+                <img class="centered" src="./imgs/lecture_10/rviz2_image.png">
+
+                And this should add to your rviz2 window a view of the camera on the bottom left:
+
+                <img class="centered" src="./imgs/lecture_10/rviz2_view.png">
+
+                You can also add the lidar scanner to your view just like we did in the last lecture and see how the two sensors work in conjunction.<br><br>
+
+                It should be clear by now how useful rviz can be when working with real drones. When working with real hardware, having everything at your disposal under one single
+                window is imperative in order to have a clear view of your running test.
+            </p>
+
+            <p class="section">Working with the camera feed using OpenCV</p>
+
+            <p>
+                Now that the camera feed is ready to be used, you may want to use it in your code to work with it, maybe to perform some image recognition task. <br>
+                You can already see what kind of messages the image feed is producing, just by lookint at the interface of the messages. Using an <span class="snippet">echo</span> command
+                on the publishing topic can show you exactly what the messages are.<br>
+                Nonetheless, it may be hard to make some sense of the data of the image on yourself. It is possible to work directly with the matrix of the imagedata,
+                but it's a waste of time on your part.<br><br>
+
+                ROS has already built in some functions for you to transform an <span class="snippet">image</span> message to an OpenCV image. Let's see how we can do that.<br>
+                Let's create a new node which will act exactly like the <span class="snippet">showimage</span> tool for us. Building other functions on top of that then is just a matter of 
+                learning to use OpenCV to perform the tasks that you want to.<br><br>
+
+                In your node, you can import OpenCV and some useful functions like this:
+
+                <p class="code">
+                    import cv2 <br>
+                    from cv_bridge import CvBridge
+                </p>
+
+                On your code then, using these classes, you can inizialize a bridge like this:
+
+                <p class="code">
+                    bridge = CvBridge()
+                </p>
+
+                To convert the image we receive from the topic we can simply use the bridge we just created like this:
+                
+
+                <pre>
+try:
+    cv_image = bridge.imgmsg_to_cv2(msg, "passthrough")
+except:
+    self.get_logger().info("CvBridge Error")
+                </pre>
+
+                After that, we can use the OpenCV libraries to show the image on our screen. This function will take in input an OpenCV image and display it on screen:
+
+                <pre>
+def show_image(img):
+    cv2.imshow("Image Window", img)
+    cv2.waitKey(3)
+                </pre>
+
+                That's it! If the image is being displayed correctly on your screen, everything is working and you are ready to use your image feed to perform some task instead of simply
+                displaying the image itself. <br><br>
+
+                Want to perform some object detection? Find your target in your camera to turn to? OpenCV should be really simple to use, as it is really well documented online and full of ready
+                to be used examples.<br><br>
+
+                We will try to do something with it in the next part.
+
+
+            </p>
+
+
+            <p class="section">Thermal camera</p>
+
+            <p>
+                Switching from a normal camera to a thermal one is really simple. In Gazebo, all you have to do, is changing the sensor type from <span class="snippet">camera</span> to <span class="snippet">thermal</span>,
+                and that's it. You can actually load an already defined Gazebo example to work with thermal camera, which is the <span class="snippet">thermal_camera.sdf</span> world.<br><br>
+
+                The world should look something like this:
+
+                <img class="centered" src="./imgs/lecture_10/thermal_camera.png">
+
+                We have something missing though, right? While our camera is already working, we have never defined the temperature of an object so far.<br>
+                To do that, we have a Gazebo plugin that we can add under the visual of an object, to define its temperature property.<br><br>
+                
+                This will do the trick:
+
+                <pre>
+&lt;plugin
+    filename="ignition-gazebo-thermal-system"
+    name="ignition::gazebo::systems::Thermal"&gt;
+    &lt;temperature>200.0&lt;/temperature&gt;
+&lt;/plugin&gt;
+                </pre>
+
+
+                Done. You can now define objects in your simulation and assign a temperature to it. You can also bridge the image feed to your ROS project and work with it.<br><br>
+
+                The following exercise is optional and intended for those who wish to familiarize themselves with OpenCV and develop some skills with it.
+
+            </p>
+
+            <p class="section">Extra exercise - The Way of Water</p>
+
+            <p>
+
+                Can you use the OpenCV libraries to detect the brightest cluster of pixels in your screen (i.e, the hottest object)?<br>
+                What you are here requested is to create a ROS drone which uses camera(s) to find the hottest object in the simulation, and fly on top of it.<br><br>
+
+                The idea is that the drone should be able to then drop water on top of the hot object in order to cool it. But that's ok, we are happy if the drone flys on top of it for now.<br><br>
+
+                You may want to add two cameras to your drone, one to detect far away objects which points in front of it (maybe with a little bit of angle downards), and one directly below it,
+                so that it can precisely move on top of the object at the last step.
+
+                Give it a try!
+
+
+                <img class="centered" src="./imgs/lecture_10/asserting_dominance.png">
+
+            </p>
+
+
+            <p class="section">Project Brainstorming: Face the Wind!</p>
+
+            <p>
+                The repository of the project now contains two simulations which use wind to test your solution to the project, try to pull the new simulation files!<br><br>
+
+                The first stage is the following:
+
+                <img class="centered" src="./imgs/lecture_10/face_the_wind.png">
+
+                Four drones to use. If you are clustering just by looking at distances, your drones may not take an optimal path between targets (or do they?).
+                Some cluster are also very tight, this should challenge the movement of the drones if you are still using way too simple turns.<br><br><br>
+
+
+                The second stage is the following:
+
+                <img class="centered" src="./imgs/lecture_10/tornado_drones.png">
+
+                You have only two drones to use, and the wind will give you an hard time coming back to the first target, considering that you have only 120 seconds of patrolling time.<br>
+                You may be able to visit the targets efficiently if the movement of the drones is really well executed, and distributed, between targets.<br><br>
+
+                Good luck!
+            </p>
+
+
+            <p class="section">Conclusions</p>
+            <p>
+                This it the last lab lecture for the IoT course.<br>
+                While not necessary for the project, hopefully these last two lectures have given you a basic idea on how to use sensors in a simulated environment for your robot, and got you more
+                confident in using rviz2.<br><br>
+
+                If you have a Raspberry and an Arduino lying around at home, you may try to impleent some things that we have seen so far to a physical robot.<br>
+                Ideally, you would have to bridge the controls of the moving parts to a ROS topic, so that you can control them with it.<br><br>
+
+                By subscribing both the real and the simulated robot on your command topic, you may move both of them with one single controller. This allows you to see how the simulated environment
+                compares to the real one.<br><br>
+
+                There is no limit with what you can do with the tools we have seen in these lectures.<br>
+                Hope you had fun along the way!<br><br>
+
+                Feel free to email me for any feedback, questions (both for the course or the project), or anything else you may want to know!<br><br>
+
+                Goodbye!
+            </p>
+            
+        </div>
+    </body>
+</html>
+
+            
